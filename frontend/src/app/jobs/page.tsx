@@ -88,7 +88,7 @@ export default async function JobsPage({
           </aside>
 
           {/* Job Listings */}
-          <div className="flex-grow">
+          <div className="grow">
             <div className="flex justify-between items-center mb-md">
               <p className="font-mono text-sm text-on-surface-variant">
                 Showing <span className="font-bold text-on-surface">{jobs.length}</span> active jobs

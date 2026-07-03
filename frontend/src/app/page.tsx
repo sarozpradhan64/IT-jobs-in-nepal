@@ -16,7 +16,7 @@ export default function HomePage() {
           {/* Modern Search Bar */}
           <div className="max-w-3xl mx-auto mb-lg">
             <div className="glass-panel p-2 rounded-2xl flex flex-col md:flex-row items-stretch gap-2 shadow-2xl">
-              <div className="flex-grow flex items-center px-4 gap-3 bg-surface-container-low rounded-xl">
+              <div className="grow flex items-center px-4 gap-3 bg-surface-container-low rounded-xl">
                 <span className="material-symbols-outlined text-outline">search</span>
                 <input 
                   className="w-full bg-transparent border-none focus:ring-0 text-on-surface font-sans py-4 outline-none placeholder:text-outline" 

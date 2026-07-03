@@ -53,7 +53,7 @@ export default async function CompaniesPage({
 
         {/* Search & Filter Bar */}
         <div className="glass-panel p-2 rounded-2xl flex flex-col md:flex-row items-stretch gap-2 shadow-sm mb-lg max-w-3xl">
-          <div className="flex-grow flex items-center px-4 gap-3 bg-surface-container-low rounded-xl">
+          <div className="grow flex items-center px-4 gap-3 bg-surface-container-low rounded-xl">
             <span className="material-symbols-outlined text-outline">search</span>
             <input 
               type="text" 
@@ -75,7 +75,7 @@ export default async function CompaniesPage({
                 key={company.id}
                 className="group bg-surface-container-low border border-outline-variant/20 rounded-xl p-md flex flex-col hover:bg-surface-container-high hover:border-primary/50 transition-all cursor-pointer relative overflow-hidden"
               >
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-transparent via-primary/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 
                 <div className="flex items-center gap-md mb-4">
                   <div className="w-16 h-16 bg-surface-variant rounded-lg flex items-center justify-center font-bold text-primary border border-outline-variant/30 overflow-hidden shrink-0">
@@ -93,7 +93,7 @@ export default async function CompaniesPage({
                   </div>
                 </div>
                 
-                <p className="font-sans text-sm text-on-surface-variant line-clamp-3 mb-4 flex-grow">
+                <p className="font-sans text-sm text-on-surface-variant line-clamp-3 mb-4 grow">
                   {company.overview || "No overview provided for this company yet. Click to view available job openings."}
                 </p>
                 

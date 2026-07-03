@@ -54,7 +54,7 @@ export default function RootLayout({
           </div>
         </header>
 
-        <main className="flex-grow">{children}</main>
+        <main className="grow">{children}</main>
 
         <footer className="full-width py-xl bg-surface-container-lowest border-t border-outline-variant/10 shadow-none mt-auto">
           <div className="flex flex-col md:flex-row justify-between items-center px-md max-w-7xl mx-auto gap-md">
