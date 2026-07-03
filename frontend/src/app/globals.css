@@ -1,47 +1,63 @@
-@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap')
-layer(base);
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
-@import 'tailwindcss';
+@import "tailwindcss";
+
+@theme {
+  --color-surface: #0b1326;
+  --color-surface-dim: #0b1326;
+  --color-surface-bright: #31394d;
+  --color-surface-container-lowest: #060e20;
+  --color-surface-container-low: #131b2e;
+  --color-surface-container: #171f33;
+  --color-surface-container-high: #222a3d;
+  --color-surface-container-highest: #2d3449;
+
+  --color-on-surface: #dae2fd;
+  --color-on-surface-variant: #c2c6d6;
+  --color-inverse-surface: #dae2fd;
+  --color-inverse-on-surface: #283044;
+
+  --color-outline: #8c909f;
+  --color-outline-variant: #424754;
+
+  --color-primary: #adc6ff;
+  --color-on-primary: #002e6a;
+  --color-primary-container: #4d8eff;
+  --color-on-primary-container: #00285d;
+  --color-inverse-primary: #005ac2;
+
+  --color-secondary: #b7c8e1;
+  --color-on-secondary: #213145;
+  --color-secondary-container: #3a4a5f;
+  --color-on-secondary-container: #a9bad3;
+
+  --color-error: #ffb4ab;
+  --color-on-error: #690005;
+  --color-error-container: #93000a;
+
+  --font-sans: "Geist", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+
+  --spacing-base: 4px;
+  --spacing-xs: 8px;
+  --spacing-sm: 16px;
+  --spacing-md: 24px;
+  --spacing-lg: 48px;
+  --spacing-xl: 80px;
+  --spacing-gutter: 24px;
+  --spacing-margin-mobile: 16px;
+
+  --radius-sm: 0.25rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+}
 
 @layer base {
-  :root {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    
-    /* Stitch Specific Tokens (Dark Mode Default) */
-    --surface: #0b1326;
-    --surface-dim: #0b1326;
-    --surface-bright: #31394d;
-    --surface-container-lowest: #060e20;
-    --surface-container-low: #131b2e;
-    --surface-container: #171f33;
-    --surface-container-high: #222a3d;
-    --surface-container-highest: #2d3449;
-    
-    --on-surface: #dae2fd;
-    --on-surface-variant: #c2c6d6;
-    --inverse-surface: #dae2fd;
-    --inverse-on-surface: #283044;
-    
-    --outline: #8c909f;
-    --outline-variant: #424754;
-    
-    --primary: #adc6ff;
-    --on-primary: #002e6a;
-    --primary-container: #4d8eff;
-    --on-primary-container: #00285d;
-    --inverse-primary: #005ac2;
-    
-    --secondary: #b7c8e1;
-    --on-secondary: #213145;
-    --secondary-container: #3a4a5f;
-    --on-secondary-container: #a9bad3;
-  }
-
   body {
-    background-color: var(--surface);
-    color: var(--on-surface);
-    font-family: 'Geist', sans-serif;
+    background-color: var(--color-surface);
+    color: var(--color-on-surface);
+    font-family: var(--font-sans);
   }
 }
 
