@@ -62,12 +62,13 @@ alembic upgrade head
 # Activate the venv first (Windows)
 venv/Scripts/activate
 
-# Run all scrapers
+# Run all portal and LinkedIn scrapers at once
 python -m app.scrapers.run --source all
 
-# Run a specific scraper
+# Run a specific portal scraper
 python -m app.scrapers.run --source merojob
 python -m app.scrapers.run --source jobsnepal
+python -m app.scrapers.run --source linkedin
 ```
 
 ## Docker (When configured)

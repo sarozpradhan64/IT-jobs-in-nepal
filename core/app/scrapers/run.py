@@ -10,8 +10,7 @@ import asyncio
 import argparse
 import logging
 from app.database import SessionLocal, engine, Base
-from app.scrapers.portals.merojob import MerojobScraper
-from app.scrapers.portals.jobsnepal import JobsNepalScraper
+from app.scrapers.portal_engine import SmartPortalScraper, PORTAL_CONFIGS
 from app.scrapers.career_page import SmartCareerScraper
 from app.services.github import GitHubClient
 from tqdm import tqdm
@@ -24,8 +23,8 @@ logging.getLogger("app.scrapers.career_page").setLevel(logging.WARNING)
 logging.getLogger("httpx").setLevel(logging.WARNING)
 
 SCRAPERS = {
-    "merojob": MerojobScraper,
-    "jobsnepal": JobsNepalScraper,
+    portal: (lambda p=portal: SmartPortalScraper(p))
+    for portal in PORTAL_CONFIGS
 }
 
 

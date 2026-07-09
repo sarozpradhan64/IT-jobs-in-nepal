@@ -9,7 +9,6 @@ export default function Navigation() {
   const navLinks = [
     { href: "/jobs", label: "Job Board" },
     { href: "/companies", label: "Companies" },
-    { href: "/sources", label: "Sources" },
     { href: "/about", label: "About" },
   ];
 

@@ -14,6 +14,7 @@ export interface JobData {
   posted_date: string;
   apply_url: string;
   remote_status: string;
+  source_name: string;
   skills: { id: number; name: string }[];
   company: {
     id: number;
@@ -75,6 +76,11 @@ export function JobCard({ job }: { job: JobData }) {
           <span className="px-3 py-1 bg-primary/10 text-primary border border-primary/20 rounded-full text-xs font-mono">
             {getRelativeTime(job.posted_date)}
           </span>
+          {job.source_name && (
+            <span className="px-3 py-1 bg-surface-variant text-on-surface-variant border border-outline-variant/30 rounded-full text-xs font-mono capitalize whitespace-nowrap">
+              via {job.source_name.includes('CareerPage:') ? 'Career Page' : job.source_name}
+            </span>
+          )}
         </div>
         <Link href={`/jobs/${job.slug}`} className="bg-secondary-container text-on-secondary-container px-6 py-2 rounded-lg font-mono text-sm hover:opacity-80 transition-opacity whitespace-nowrap text-center w-full sm:w-auto">
           View Details
