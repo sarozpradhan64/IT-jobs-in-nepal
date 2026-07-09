@@ -1,19 +1,19 @@
 import Link from "next/link";
-import { JobData } from "@/components/ui/job-card";
 import { notFound } from "next/navigation";
+import { JobData } from "@/components/ui/job-card";
 
-// Example Fetcher for Job Details
 async function getJobDetails(slug: string): Promise<JobData | null> {
   try {
-    const res = await fetch(`http://127.0.0.1:8000/api/jobs/${slug}`, {
-      next: { revalidate: 60 }
-    });
-    
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/jobs/${slug}`,
+      {
+        next: { revalidate: 60 },
+      },
+    );
     if (!res.ok) {
       if (res.status === 404) return null;
       throw new Error("Failed to fetch job details");
     }
-    
     return await res.json();
   } catch (error) {
     console.error(error);
@@ -21,108 +21,218 @@ async function getJobDetails(slug: string): Promise<JobData | null> {
   }
 }
 
+async function getRelatedJobs(
+  companyId: number,
+  currentSlug: string,
+): Promise<JobData[]> {
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/jobs?company_id=${companyId}&limit=4`,
+      { next: { revalidate: 60 } },
+    );
+    if (!res.ok) return [];
+    const data = await res.json();
+    return Array.isArray(data)
+      ? data.filter((j: JobData) => j.slug !== currentSlug).slice(0, 3)
+      : [];
+  } catch {
+    return [];
+  }
+}
+
+function BadgePill({
+  icon,
+  label,
+  value,
+}: {
+  icon: string;
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="flex-1 min-w-[130px] bg-surface-container rounded-xl p-4">
+      <div className="flex items-center gap-2 mb-1">
+        <span className="material-symbols-outlined text-primary text-sm">
+          {icon}
+        </span>
+        <p className="font-mono text-xs text-on-surface-variant uppercase tracking-wider">
+          {label}
+        </p>
+      </div>
+      <p className="font-sans font-semibold capitalize">{value}</p>
+    </div>
+  );
+}
+
 export default async function JobDetailsPage({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
-  const job = await getJobDetails(params.slug);
+  const { slug } = await params;
+  const job = await getJobDetails(slug);
 
-  if (!job) {
-    notFound();
-  }
+  if (!job) notFound();
+
+  const relatedJobs = await getRelatedJobs(job.company.id, slug);
+
+  const companyInitials = job.company.name
+    .split(" ")
+    .map((w: string) => w[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
+
+  const companySlug =
+    job.company.slug ?? job.company.name.toLowerCase().replace(/\s+/g, "-");
+
+  const postedDate = job.posted_date
+    ? new Date(job.posted_date).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      })
+    : "Recently";
+
+  const remoteLabel: Record<string, string> = {
+    onsite: "On-site",
+    remote: "Remote",
+    hybrid: "Hybrid",
+  };
 
   return (
-    <div className="bg-surface-container-lowest min-h-screen py-xl">
-      <div className="max-w-4xl mx-auto px-md">
-        
+    <div className="bg-surface-container-lowest min-h-screen pb-2xl">
+      <div className="max-w-7xl mx-auto px-md py-xl">
         {/* Back Link */}
-        <Link href="/jobs" className="inline-flex items-center gap-2 text-on-surface-variant hover:text-primary font-mono text-sm mb-lg transition-colors">
+        <Link
+          href="/jobs"
+          className="inline-flex items-center gap-2 text-on-surface-variant hover:text-primary font-mono text-sm mb-lg transition-colors"
+        >
           <span className="material-symbols-outlined text-sm">arrow_back</span>
           Back to Job Board
         </Link>
 
-        {/* Job Header Card */}
-        <div className="bg-surface-container-low border border-outline-variant/20 rounded-2xl p-lg mb-xl relative overflow-hidden">
-          {/* Subtle gradient overlay */}
-          <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
-          
+        {/* ── Job Header Card ──────────────────────────── */}
+        <div className="relative overflow-hidden bg-surface-container-low border border-outline-variant/20 rounded-2xl p-lg mb-xl">
+          <div className="pointer-events-none absolute -top-12 right-0 w-72 h-72 bg-primary/5 rounded-full blur-3xl" />
+
           <div className="relative z-10 flex flex-col md:flex-row md:items-start justify-between gap-lg">
+            {/* Company logo + title */}
             <div className="flex items-start gap-md">
-              <div className="w-16 h-16 bg-surface-variant rounded-xl flex items-center justify-center font-bold text-primary border border-outline-variant/30 overflow-hidden shrink-0">
+              <div className="w-16 h-16 shrink-0 rounded-xl bg-surface flex items-center justify-center text-primary font-bold text-xl border border-outline-variant/30 overflow-hidden shadow-md">
                 {job.company.logo_url ? (
-                  <img src={job.company.logo_url} alt={job.company.name} className="w-full h-full object-cover" />
+                  <img
+                    src={job.company.logo_url}
+                    alt={job.company.name}
+                    className="w-full h-full object-cover"
+                  />
                 ) : (
-                  <span className="text-xl">{job.company.name.substring(0, 2).toUpperCase()}</span>
+                  <span>{companyInitials}</span>
                 )}
               </div>
-              
+
               <div>
-                <h1 className="font-sans text-3xl md:text-4xl font-bold mb-2">{job.title}</h1>
-                <div className="flex flex-wrap items-center gap-3">
-                  <Link href={`/companies/${job.company.name.toLowerCase().replace(' ', '-')}`} className="font-sans text-lg font-medium text-primary hover:underline">
+                <h1 className="font-sans text-3xl md:text-4xl font-bold mb-2 leading-tight">
+                  {job.title}
+                </h1>
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                  <Link
+                    href={`/companies/${companySlug}`}
+                    className="font-sans text-lg font-medium text-primary hover:underline"
+                  >
                     {job.company.name}
                   </Link>
-                  <span className="text-outline-variant">•</span>
+                  <span className="text-outline-variant hidden md:inline">
+                    •
+                  </span>
                   <div className="flex items-center gap-1 text-on-surface-variant font-mono text-sm">
-                    <span className="material-symbols-outlined text-sm">location_on</span>
-                    {job.location} ({job.remote_status})
+                    <span className="material-symbols-outlined text-sm">
+                      location_on
+                    </span>
+                    {job.location}
                   </div>
-                  <span className="text-outline-variant">•</span>
+                  <span className="text-outline-variant hidden md:inline">
+                    •
+                  </span>
                   <div className="flex items-center gap-1 text-on-surface-variant font-mono text-sm">
-                    <span className="material-symbols-outlined text-sm">schedule</span>
-                    {new Date(job.posted_date).toLocaleDateString()}
+                    <span className="material-symbols-outlined text-sm">
+                      schedule
+                    </span>
+                    {postedDate}
                   </div>
                 </div>
               </div>
             </div>
-            
-            <div className="shrink-0 w-full md:w-auto flex flex-col gap-3">
-              <a 
-                href={job.apply_url} 
-                target="_blank" 
+
+            {/* CTA Buttons */}
+            <div className="shrink-0 flex flex-col gap-3 w-full md:w-auto">
+              <a
+                href={job.apply_url}
+                target="_blank"
                 rel="noopener noreferrer"
                 className="bg-primary text-on-primary px-8 py-3 rounded-xl font-sans font-bold hover:opacity-90 active:scale-95 transition-all text-center flex items-center justify-center gap-2"
               >
                 Apply Now
-                <span className="material-symbols-outlined text-sm">open_in_new</span>
+                <span className="material-symbols-outlined text-sm">
+                  open_in_new
+                </span>
               </a>
-              <button className="border border-outline-variant/50 text-on-surface px-8 py-3 rounded-xl font-sans font-medium hover:bg-surface-variant transition-colors flex items-center justify-center gap-2">
-                <span className="material-symbols-outlined text-sm">bookmark_border</span>
-                Save Job
-              </button>
+              <Link
+                href={`/companies/${companySlug}`}
+                className="border border-outline-variant/50 text-on-surface px-8 py-3 rounded-xl font-sans font-medium hover:bg-surface-variant transition-colors flex items-center justify-center gap-2"
+              >
+                <span className="material-symbols-outlined text-sm">
+                  domain
+                </span>
+                View Company
+              </Link>
             </div>
           </div>
-          
-          <div className="relative z-10 border-t border-outline-variant/20 mt-lg pt-lg flex flex-wrap gap-md">
-            <div className="flex-1 min-w-[120px]">
-              <p className="font-mono text-xs text-on-surface-variant uppercase tracking-wider mb-1">Employment Type</p>
-              <p className="font-sans font-medium capitalize">{job.employment_type.replace('-', ' ')}</p>
-            </div>
-            <div className="flex-1 min-w-[120px]">
-              <p className="font-mono text-xs text-on-surface-variant uppercase tracking-wider mb-1">Experience Level</p>
-              <p className="font-sans font-medium capitalize">{job.experience_level}</p>
-            </div>
-            <div className="flex-1 min-w-[120px]">
-              <p className="font-mono text-xs text-on-surface-variant uppercase tracking-wider mb-1">Salary Range</p>
-              <p className="font-sans font-medium">{job.salary || "Not Disclosed"}</p>
-            </div>
+
+          {/* Meta Badges */}
+          <div className="relative z-10 border-t border-outline-variant/20 mt-lg pt-lg flex flex-wrap gap-3">
+            <BadgePill
+              icon="work"
+              label="Employment Type"
+              value={job.employment_type?.replace("-", " ") ?? "Full Time"}
+            />
+            <BadgePill
+              icon="signal_cellular_alt"
+              label="Experience"
+              value={job.experience_level ?? "Mid"}
+            />
+            <BadgePill
+              icon="wifi"
+              label="Work Setup"
+              value={remoteLabel[job.remote_status] ?? job.remote_status}
+            />
+            <BadgePill
+              icon="payments"
+              label="Salary"
+              value={job.salary ?? "Not Disclosed"}
+            />
           </div>
         </div>
 
-        {/* Two Column Layout for Body */}
+        {/* ── Two Column Body ──────────────────────────── */}
         <div className="flex flex-col lg:flex-row gap-xl">
-          
           {/* Main Content */}
-          <div className="lg:w-2/3 space-y-xl">
-            
-            {/* Tech Stack / Skills */}
+          <main className="flex-1 min-w-0 space-y-xl">
+            {/* Skills */}
             {job.skills && job.skills.length > 0 && (
-              <section>
-                <h2 className="font-sans text-2xl font-bold mb-4">Tech Stack & Skills</h2>
-                <div className="flex flex-wrap gap-xs">
-                  {job.skills.map((skill) => (
-                    <span key={skill.id} className="px-4 py-2 bg-surface-container-high rounded-full font-mono text-sm border border-outline-variant/20">
+              <section className="bg-surface-container-low border border-outline-variant/20 rounded-2xl p-lg">
+                <h2 className="font-sans text-xl font-bold mb-4 flex items-center gap-2">
+                  <span className="material-symbols-outlined text-primary">
+                    code
+                  </span>
+                  Tech Stack & Skills
+                </h2>
+                <div className="flex flex-wrap gap-2">
+                  {job.skills.map((skill: { id: number; name: string }) => (
+                    <span
+                      key={skill.id}
+                      className="px-4 py-2 bg-primary/10 text-primary rounded-full font-mono text-sm border border-primary/20 hover:bg-primary/20 transition-colors cursor-default"
+                    >
                       {skill.name}
                     </span>
                   ))}
@@ -131,53 +241,177 @@ export default async function JobDetailsPage({
             )}
 
             {/* Description */}
-            <section>
-              <h2 className="font-sans text-2xl font-bold mb-4">Job Description</h2>
-              <div className="prose prose-invert prose-p:font-sans prose-p:text-on-surface-variant prose-p:leading-relaxed prose-li:font-sans prose-li:text-on-surface-variant max-w-none">
-                {/* Fallback rendering if description is plain text. In reality you might use a markdown renderer here */}
+            <section className="bg-surface-container-low border border-outline-variant/20 rounded-2xl p-lg">
+              <h2 className="font-sans text-xl font-bold mb-4 flex items-center gap-2">
+                <span className="material-symbols-outlined text-primary">
+                  description
+                </span>
+                Job Description
+              </h2>
+              <div className="font-sans text-sm text-on-surface-variant leading-relaxed space-y-3">
                 {job.description ? (
-                  job.description.split('\n').map((paragraph, idx) => (
-                    <p key={idx} className="mb-4">{paragraph}</p>
-                  ))
+                  job.description
+                    .split("\n")
+                    .map((para: string, idx: number) =>
+                      para.trim() ? <p key={idx}>{para}</p> : null,
+                    )
                 ) : (
-                  <p>No description provided by the company.</p>
+                  <p>
+                    No description provided. Please visit the company's website
+                    for more details.
+                  </p>
                 )}
               </div>
             </section>
 
-          </div>
+            {/* Requirements */}
+            {job.requirements && (
+              <section className="bg-surface-container-low border border-outline-variant/20 rounded-2xl p-lg">
+                <h2 className="font-sans text-xl font-bold mb-4 flex items-center gap-2">
+                  <span className="material-symbols-outlined text-primary">
+                    checklist
+                  </span>
+                  Requirements
+                </h2>
+                <div className="font-sans text-sm text-on-surface-variant leading-relaxed space-y-3">
+                  {job.requirements
+                    .split("\n")
+                    .map((line: string, idx: number) =>
+                      line.trim() ? (
+                        <div key={idx} className="flex gap-2">
+                          <span className="material-symbols-outlined text-primary text-sm shrink-0 mt-0.5">
+                            check_circle
+                          </span>
+                          <p>{line}</p>
+                        </div>
+                      ) : null,
+                    )}
+                </div>
+              </section>
+            )}
+
+            {/* Apply CTA */}
+            <div className="bg-gradient-to-r from-primary/10 to-secondary/10 border border-primary/20 rounded-2xl p-lg flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div>
+                <h3 className="font-sans text-lg font-bold mb-1">
+                  Ready to apply?
+                </h3>
+                <p className="font-sans text-sm text-on-surface-variant">
+                  Don't miss out — submit your application directly on the
+                  company's site.
+                </p>
+              </div>
+              <a
+                href={job.apply_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="shrink-0 bg-primary text-on-primary px-8 py-3 rounded-xl font-sans font-bold hover:opacity-90 active:scale-95 transition-all flex items-center gap-2"
+              >
+                Apply Now
+                <span className="material-symbols-outlined text-sm">
+                  open_in_new
+                </span>
+              </a>
+            </div>
+          </main>
 
           {/* Right Sidebar */}
-          <aside className="lg:w-1/3">
-            <div className="bg-surface-container-low border border-outline-variant/20 rounded-xl p-lg sticky top-24">
-              <h3 className="font-sans text-xl font-bold mb-4">About the Company</h3>
-              
-              <div className="flex items-center gap-4 mb-6">
-                <div className="w-12 h-12 bg-surface-variant rounded-lg flex items-center justify-center font-bold text-primary shrink-0">
-                  {job.company.logo_url ? (
-                    <img src={job.company.logo_url} alt={job.company.name} className="w-full h-full object-cover rounded-lg" />
-                  ) : (
-                    job.company.name.substring(0, 2).toUpperCase()
+          <aside className="lg:w-72 shrink-0">
+            <div className="sticky top-24 space-y-md">
+              {/* Company Card */}
+              <div className="bg-surface-container-low border border-outline-variant/20 rounded-2xl p-lg">
+                <h3 className="font-sans text-lg font-bold mb-4">
+                  About the Company
+                </h3>
+
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="w-12 h-12 shrink-0 rounded-xl bg-surface flex items-center justify-center text-primary font-bold border border-outline-variant/30 overflow-hidden">
+                    {job.company.logo_url ? (
+                      <img
+                        src={job.company.logo_url}
+                        alt={job.company.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <span>{companyInitials}</span>
+                    )}
+                  </div>
+                  <div>
+                    <h4 className="font-sans font-bold">{job.company.name}</h4>
+                    <Link
+                      href={`/companies/${companySlug}`}
+                      className="font-mono text-xs text-primary hover:underline flex items-center gap-1"
+                    >
+                      View Profile
+                      <span className="material-symbols-outlined text-xs">
+                        arrow_forward
+                      </span>
+                    </Link>
+                  </div>
+                </div>
+
+                <p className="font-sans text-sm text-on-surface-variant leading-relaxed mb-4">
+                  {job.company.overview ??
+                    "A growing tech company based in Nepal, delivering innovative software solutions."}
+                </p>
+
+                <div className="space-y-2">
+                  {job.company.website && (
+                    <a
+                      href={job.company.website}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 text-sm font-sans text-on-surface-variant hover:text-primary transition-colors"
+                    >
+                      <span className="material-symbols-outlined text-sm">
+                        language
+                      </span>
+                      {job.company.website
+                        .replace(/^https?:\/\//, "")
+                        .replace(/\/$/, "")}
+                    </a>
                   )}
                 </div>
-                <div>
-                  <h4 className="font-sans font-bold">{job.company.name}</h4>
-                  <Link href={`/companies/${job.company.name.toLowerCase().replace(' ', '-')}`} className="font-mono text-xs text-primary hover:underline">
-                    View Profile
+              </div>
+
+              {/* Related Jobs */}
+              {relatedJobs.length > 0 && (
+                <div className="bg-surface-container-low border border-outline-variant/20 rounded-2xl p-lg">
+                  <h3 className="font-sans text-lg font-bold mb-4">
+                    More from {job.company.name}
+                  </h3>
+                  <div className="space-y-3">
+                    {relatedJobs.map((related) => (
+                      <Link
+                        key={related.id}
+                        href={`/jobs/${related.slug}`}
+                        className="block group p-3 rounded-xl hover:bg-surface-container-high transition-colors border border-transparent hover:border-outline-variant/20"
+                      >
+                        <p className="font-sans text-sm font-semibold group-hover:text-primary transition-colors line-clamp-1">
+                          {related.title}
+                        </p>
+                        <p className="font-mono text-xs text-on-surface-variant mt-1 flex items-center gap-1">
+                          <span className="material-symbols-outlined text-xs">
+                            location_on
+                          </span>
+                          {related.location}
+                        </p>
+                      </Link>
+                    ))}
+                  </div>
+                  <Link
+                    href={`/companies/${companySlug}`}
+                    className="mt-4 flex items-center gap-1 text-primary font-mono text-xs hover:underline"
+                  >
+                    View all roles
+                    <span className="material-symbols-outlined text-xs">
+                      arrow_forward
+                    </span>
                   </Link>
                 </div>
-              </div>
-              
-              <div className="space-y-4 font-sans text-sm text-on-surface-variant">
-                <p>We are a fast-growing tech company operating in Nepal, focused on delivering high-quality software solutions globally.</p>
-                <Link href="#" className="flex items-center gap-2 text-on-surface hover:text-primary transition-colors">
-                  <span className="material-symbols-outlined text-sm">link</span>
-                  Company Website
-                </Link>
-              </div>
+              )}
             </div>
           </aside>
-          
         </div>
       </div>
     </div>

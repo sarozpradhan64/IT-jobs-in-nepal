@@ -7,13 +7,21 @@ export interface JobData {
   title: string;
   location: string;
   employment_type: string;
+  experience_level: string;
+  salary?: string;
+  description?: string;
+  requirements?: string;
   posted_date: string;
   apply_url: string;
   remote_status: string;
   skills: { id: number; name: string }[];
   company: {
+    id: number;
+    slug: string;
     name: string;
     logo_url?: string;
+    website?: string;
+    overview?: string;
   };
 }
 

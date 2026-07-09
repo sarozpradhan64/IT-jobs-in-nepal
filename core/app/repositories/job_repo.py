@@ -30,6 +30,7 @@ class JobRepository:
         self, 
         skip: int = 0, 
         limit: int = 100,
+        q: str | None = None,
         company_id: int | None = None,
         location: str | None = None,
         employment_type: str | None = None,
@@ -37,27 +38,51 @@ class JobRepository:
         remote_status: str | None = None,
         skill_name: str | None = None
     ) -> list[Job]:
+        from sqlalchemy import or_
         query = select(Job).options(selectinload(Job.company), selectinload(Job.skills)).where(Job.is_active == True)
         
         # We also want to filter out expired jobs if expiry_date is set
         query = query.where((Job.expiry_date == None) | (Job.expiry_date > datetime.utcnow()))
         
+        if q:
+            search_pattern = f"%{q}%"
+            query = query.join(Company, isouter=True)
+            # Need to avoid double join if skill_name is also provided, so we do it carefully
+            # For simplicity, we just use title, description, company name
+            query = query.where(
+                or_(
+                    Job.title.ilike(search_pattern),
+                    Job.description.ilike(search_pattern),
+                    Company.name.ilike(search_pattern)
+                )
+            )
+
         if company_id:
             query = query.where(Job.company_id == company_id)
         if location:
             query = query.where(Job.location.ilike(f"%{location}%"))
         if employment_type:
-            query = query.where(Job.employment_type == employment_type)
+            types = [t.strip() for t in employment_type.split(',')]
+            query = query.where(Job.employment_type.in_(types))
         if experience_level:
-            query = query.where(Job.experience_level == experience_level)
+            levels = [l.strip() for l in experience_level.split(',')]
+            query = query.where(Job.experience_level.in_(levels))
         if remote_status:
-            query = query.where(Job.remote_status == remote_status)
+            statuses = [s.strip() for s in remote_status.split(',')]
+            query = query.where(Job.remote_status.in_(statuses))
         if skill_name:
-            query = query.join(Job.skills).where(Skill.name.ilike(f"%{skill_name}%"))
+            skills = [s.strip() for s in skill_name.split(',')]
+            # Add outer join to skills if not already joined, but SQLAlchemy handles it if we use explicit join
+            # We can use an EXISTS subquery for skills to avoid messing up the main query joins
+            from sqlalchemy import exists
+            query = query.where(
+                Job.skills.any(Skill.name.in_(skills))
+                if len(skills) > 0 else True
+            )
             
         query = query.order_by(Job.posted_date.desc()).offset(skip).limit(limit)
         result = await self.db.execute(query)
-        return list(result.scalars().all())
+        return list(result.scalars().unique().all())
 
     async def create(self, obj_in: JobCreate, company_id: int, source_id: int | None, skills_list: list[Skill]) -> Job:
         db_obj = Job(

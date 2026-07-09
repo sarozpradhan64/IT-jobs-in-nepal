@@ -59,8 +59,15 @@ alembic upgrade head
 ## Running Scrapers
 
 ```bash
-# Example command to run a specific scraper manually (when implemented)
-python -m app.scrapers.run --source airtable
+# Activate the venv first (Windows)
+venv/Scripts/activate
+
+# Run all scrapers
+python -m app.scrapers.run --source all
+
+# Run a specific scraper
+python -m app.scrapers.run --source merojob
+python -m app.scrapers.run --source jobsnepal
 ```
 
 ## Docker (When configured)
