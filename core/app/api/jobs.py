@@ -13,6 +13,7 @@ router = APIRouter()
 async def list_jobs(
     skip: int = 0,
     limit: int = Query(50, le=100),
+    q: str | None = None,
     company_id: int | None = None,
     location: str | None = None,
     employment_type: str | None = None,
@@ -25,6 +26,7 @@ async def list_jobs(
     jobs = await repo.list_active_jobs(
         skip=skip,
         limit=limit,
+        q=q,
         company_id=company_id,
         location=location,
         employment_type=employment_type,

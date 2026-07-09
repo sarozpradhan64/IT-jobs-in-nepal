@@ -1,8 +1,16 @@
+import React from "react";
 import { JobCard, JobData } from "@/components/ui/job-card";
+import { JobFilters } from "@/components/ui/job-filters";
+
 
 async function getJobs(searchParams: { [key: string]: string | string[] | undefined }) {
-  const query = searchParams.q ? `?q=${searchParams.q}` : "";
-  const endpoint = searchParams.q ? `/api/jobs/search${query}` : "/api/jobs";
+  const queryParams = new URLSearchParams();
+  
+  if (searchParams.q) queryParams.append('q', searchParams.q as string);
+  if (searchParams.role) queryParams.append('skill', searchParams.role as string);
+  if (searchParams.remote_status) queryParams.append('remote_status', searchParams.remote_status as string);
+  
+  const endpoint = `/api/jobs?${queryParams.toString()}`;
   
   try {
     const res = await fetch(`http://127.0.0.1:8000${endpoint}`, {
@@ -46,44 +54,11 @@ export default async function JobsPage({
           <aside className="w-full lg:w-1/4 shrink-0">
             <div className="bg-surface-container-low border border-outline-variant/20 rounded-xl p-md sticky top-24">
               <h3 className="font-sans text-xl font-bold mb-4">Filters</h3>
-              
-              <div className="space-y-6">
-                <div>
-                  <h4 className="font-mono text-sm font-medium text-on-surface-variant uppercase tracking-wider mb-2">Search</h4>
-                  <div className="flex items-center px-3 gap-2 bg-surface-variant rounded-lg border border-outline-variant/30">
-                    <span className="material-symbols-outlined text-outline text-sm">search</span>
-                    <input 
-                      type="text" 
-                      placeholder="e.g. React, Python"
-                      className="w-full bg-transparent border-none focus:ring-0 text-on-surface font-sans py-2 outline-none text-sm placeholder:text-outline/70"
-                    />
-                  </div>
-                </div>
+              <React.Suspense fallback={<div className="h-40 animate-pulse bg-surface-variant rounded-lg"></div>}>
+                <JobFilters />
+              </React.Suspense>
 
-                <div>
-                  <h4 className="font-mono text-sm font-medium text-on-surface-variant uppercase tracking-wider mb-2">Role Type</h4>
-                  <div className="space-y-2">
-                    {['Frontend', 'Backend', 'Fullstack', 'DevOps', 'Data', 'Design'].map((role) => (
-                      <label key={role} className="flex items-center gap-2 cursor-pointer group">
-                        <input type="checkbox" className="rounded border-outline-variant/30 bg-surface text-primary focus:ring-primary/20 cursor-pointer" />
-                        <span className="font-sans text-sm group-hover:text-primary transition-colors">{role}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
 
-                <div>
-                  <h4 className="font-mono text-sm font-medium text-on-surface-variant uppercase tracking-wider mb-2">Work Setup</h4>
-                  <div className="space-y-2">
-                    {['Onsite', 'Hybrid', 'Remote'].map((setup) => (
-                      <label key={setup} className="flex items-center gap-2 cursor-pointer group">
-                        <input type="checkbox" className="rounded border-outline-variant/30 bg-surface text-primary focus:ring-primary/20 cursor-pointer" />
-                        <span className="font-sans text-sm group-hover:text-primary transition-colors">{setup}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-              </div>
             </div>
           </aside>
 

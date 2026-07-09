@@ -1,6 +1,30 @@
 import Link from "next/link";
+import { JobCard, JobData } from "@/components/ui/job-card";
 
-export default function HomePage() {
+async function getStats() {
+  try {
+    const res = await fetch("http://127.0.0.1:8000/api/stats", { next: { revalidate: 60 } });
+    if (!res.ok) return { total_jobs: "300+", total_companies: "50+", portals_integrated: "10+" };
+    return await res.json();
+  } catch (error) {
+    return { total_jobs: "300+", total_companies: "50+", portals_integrated: "10+" };
+  }
+}
+
+async function getLatestJobs(): Promise<JobData[]> {
+  try {
+    const res = await fetch("http://127.0.0.1:8000/api/jobs?limit=4", { next: { revalidate: 60 } });
+    if (!res.ok) return [];
+    return await res.json();
+  } catch (error) {
+    return [];
+  }
+}
+
+export default async function HomePage() {
+  const stats = await getStats();
+  const latestJobs = await getLatestJobs();
+
   return (
     <>
       {/* Hero Section */}
@@ -34,15 +58,15 @@ export default function HomePage() {
           <div className="flex flex-wrap justify-center gap-md mt-lg">
             <div className="flex items-center gap-2 bg-surface-container-high px-4 py-2 rounded-full border border-outline-variant/30">
               <span className="material-symbols-outlined text-primary text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>terminal</span>
-              <span className="font-mono text-xs font-medium uppercase tracking-wider">50+ Career Pages Scraped</span>
+              <span className="font-mono text-xs font-medium uppercase tracking-wider">{stats.total_companies} Career Pages Scraped</span>
             </div>
             <div className="flex items-center gap-2 bg-surface-container-high px-4 py-2 rounded-full border border-outline-variant/30">
               <span className="material-symbols-outlined text-primary text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>work</span>
-              <span className="font-mono text-xs font-medium uppercase tracking-wider">300+ LinkedIn Jobs</span>
+              <span className="font-mono text-xs font-medium uppercase tracking-wider">{stats.total_jobs} Active Jobs</span>
             </div>
             <div className="flex items-center gap-2 bg-surface-container-high px-4 py-2 rounded-full border border-outline-variant/30">
               <span className="material-symbols-outlined text-primary text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>hub</span>
-              <span className="font-mono text-xs font-medium uppercase tracking-wider">10+ Portals Integrated</span>
+              <span className="font-mono text-xs font-medium uppercase tracking-wider">{stats.portals_integrated} Portals Integrated</span>
             </div>
           </div>
         </div>
@@ -105,40 +129,26 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Tech Stack Transparent Banner */}
+      {/* Latest Jobs */}
       <section className="py-xl bg-surface border-t border-outline-variant/10">
         <div className="max-w-7xl mx-auto px-md">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-xl">
-            <div className="max-w-lg">
-              <h2 className="font-sans text-3xl font-bold mb-4">Built for Transparency</h2>
-              <p className="font-sans text-base text-on-surface-variant mb-lg">
-                DevJobs Nepal is more than just a job board. It's an open-source project designed to solve the fragmented job market. We use modern, robust technologies to ensure you never miss an opening.
-              </p>
-              <a className="inline-flex items-center gap-2 text-primary font-mono text-sm font-medium hover:underline" href="https://github.com">
-                <span className="material-symbols-outlined">star</span>
-                Contribute on GitHub
-              </a>
+          <div className="flex flex-col md:flex-row justify-between items-end mb-lg">
+            <div>
+              <h2 className="font-sans text-3xl font-bold mb-2">Latest Jobs</h2>
+              <p className="text-on-surface-variant font-sans text-base">Freshly added positions from our curated sources.</p>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-md">
-              <div className="bg-surface-container-low p-md rounded-xl border border-outline-variant/20 flex flex-col items-center text-center">
-                <div className="w-12 h-12 mb-xs flex items-center justify-center">
-                  <span className="material-symbols-outlined text-primary text-3xl">bolt</span>
-                </div>
-                <span className="font-mono text-sm font-medium text-on-surface">FastAPI</span>
-              </div>
-              <div className="bg-surface-container-low p-md rounded-xl border border-outline-variant/20 flex flex-col items-center text-center">
-                <div className="w-12 h-12 mb-xs flex items-center justify-center">
-                  <span className="material-symbols-outlined text-primary text-3xl">layers</span>
-                </div>
-                <span className="font-mono text-sm font-medium text-on-surface">Next.js</span>
-              </div>
-              <div className="bg-surface-container-low p-md rounded-xl border border-outline-variant/20 flex flex-col items-center text-center">
-                <div className="w-12 h-12 mb-xs flex items-center justify-center">
-                  <span className="material-symbols-outlined text-primary text-3xl">browser_updated</span>
-                </div>
-                <span className="font-mono text-sm font-medium text-on-surface">Playwright</span>
-              </div>
-            </div>
+            <Link className="text-primary font-mono text-sm font-medium flex items-center gap-1 group mt-4 md:mt-0" href="/jobs">
+              View All Jobs <span className="material-symbols-outlined transition-transform group-hover:translate-x-1">arrow_forward</span>
+            </Link>
+          </div>
+          <div className="space-y-4">
+            {latestJobs.length > 0 ? (
+              latestJobs.map((job) => (
+                <JobCard key={job.id} job={job} />
+              ))
+            ) : (
+              <p className="text-on-surface-variant text-center py-4">No jobs available right now.</p>
+            )}
           </div>
         </div>
       </section>

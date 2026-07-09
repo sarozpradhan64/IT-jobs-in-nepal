@@ -6,14 +6,15 @@ engine = create_async_engine(
     settings.DATABASE_URL,
     echo=False,
     future=True,
-    pool_pre_ping=True
+    # SQLite requires check_same_thread=False when used with async
+    connect_args={"check_same_thread": False},
 )
 
 SessionLocal = async_sessionmaker(
     bind=engine,
     autocommit=False,
     autoflush=False,
-    expire_on_commit=False
+    expire_on_commit=False,
 )
 
 class Base(DeclarativeBase):

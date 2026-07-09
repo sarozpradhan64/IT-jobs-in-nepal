@@ -8,3 +8,5 @@ poetry.lock
 __pycache__
 
 .idea
+.vscode
+.venv

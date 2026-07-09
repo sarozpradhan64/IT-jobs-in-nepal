@@ -24,13 +24,14 @@ class JobBase(BaseModel):
     description: str | None = None
     requirements: str | None = None
     responsibilities: str | None = None
-    posted_date: datetime
+    posted_date: datetime | None = None
     expiry_date: datetime | None = None
     apply_url: str
     source_url: str | None = None
     remote_status: str = "onsite"
 
 class JobCreate(JobBase):
+    slug: str
     company_name: str
     company_logo: str | None = None
     company_website: str | None = None
@@ -57,7 +58,7 @@ class JobResponse(JobBase):
     is_active: bool
     created_at: datetime
     updated_at: datetime
-    company: Company
+    company: Company  # Company includes: id, slug, name, logo_url, website, overview
     skills: list[Skill] = []
 
     class Config:
