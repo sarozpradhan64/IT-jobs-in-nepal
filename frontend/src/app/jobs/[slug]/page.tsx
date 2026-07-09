@@ -4,9 +4,12 @@ import { JobData } from "@/components/ui/job-card";
 
 async function getJobDetails(slug: string): Promise<JobData | null> {
   try {
-    const res = await fetch(`http://127.0.0.1:8000/api/jobs/${slug}`, {
-      next: { revalidate: 60 },
-    });
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/jobs/${slug}`,
+      {
+        next: { revalidate: 60 },
+      },
+    );
     if (!res.ok) {
       if (res.status === 404) return null;
       throw new Error("Failed to fetch job details");
@@ -18,11 +21,14 @@ async function getJobDetails(slug: string): Promise<JobData | null> {
   }
 }
 
-async function getRelatedJobs(companyId: number, currentSlug: string): Promise<JobData[]> {
+async function getRelatedJobs(
+  companyId: number,
+  currentSlug: string,
+): Promise<JobData[]> {
   try {
     const res = await fetch(
-      `http://127.0.0.1:8000/api/jobs?company_id=${companyId}&limit=4`,
-      { next: { revalidate: 60 } }
+      `${process.env.NEXT_PUBLIC_API_URL}/api/jobs?company_id=${companyId}&limit=4`,
+      { next: { revalidate: 60 } },
     );
     if (!res.ok) return [];
     const data = await res.json();
@@ -46,7 +52,9 @@ function BadgePill({
   return (
     <div className="flex-1 min-w-[130px] bg-surface-container rounded-xl p-4">
       <div className="flex items-center gap-2 mb-1">
-        <span className="material-symbols-outlined text-primary text-sm">{icon}</span>
+        <span className="material-symbols-outlined text-primary text-sm">
+          {icon}
+        </span>
         <p className="font-mono text-xs text-on-surface-variant uppercase tracking-wider">
           {label}
         </p>
@@ -75,7 +83,8 @@ export default async function JobDetailsPage({
     .join("")
     .toUpperCase();
 
-  const companySlug = job.company.slug ?? job.company.name.toLowerCase().replace(/\s+/g, "-");
+  const companySlug =
+    job.company.slug ?? job.company.name.toLowerCase().replace(/\s+/g, "-");
 
   const postedDate = job.posted_date
     ? new Date(job.posted_date).toLocaleDateString("en-US", {
@@ -94,7 +103,6 @@ export default async function JobDetailsPage({
   return (
     <div className="bg-surface-container-lowest min-h-screen pb-2xl">
       <div className="max-w-7xl mx-auto px-md py-xl">
-
         {/* Back Link */}
         <Link
           href="/jobs"
@@ -134,14 +142,22 @@ export default async function JobDetailsPage({
                   >
                     {job.company.name}
                   </Link>
-                  <span className="text-outline-variant hidden md:inline">•</span>
+                  <span className="text-outline-variant hidden md:inline">
+                    •
+                  </span>
                   <div className="flex items-center gap-1 text-on-surface-variant font-mono text-sm">
-                    <span className="material-symbols-outlined text-sm">location_on</span>
+                    <span className="material-symbols-outlined text-sm">
+                      location_on
+                    </span>
                     {job.location}
                   </div>
-                  <span className="text-outline-variant hidden md:inline">•</span>
+                  <span className="text-outline-variant hidden md:inline">
+                    •
+                  </span>
                   <div className="flex items-center gap-1 text-on-surface-variant font-mono text-sm">
-                    <span className="material-symbols-outlined text-sm">schedule</span>
+                    <span className="material-symbols-outlined text-sm">
+                      schedule
+                    </span>
                     {postedDate}
                   </div>
                 </div>
@@ -157,13 +173,17 @@ export default async function JobDetailsPage({
                 className="bg-primary text-on-primary px-8 py-3 rounded-xl font-sans font-bold hover:opacity-90 active:scale-95 transition-all text-center flex items-center justify-center gap-2"
               >
                 Apply Now
-                <span className="material-symbols-outlined text-sm">open_in_new</span>
+                <span className="material-symbols-outlined text-sm">
+                  open_in_new
+                </span>
               </a>
               <Link
                 href={`/companies/${companySlug}`}
                 className="border border-outline-variant/50 text-on-surface px-8 py-3 rounded-xl font-sans font-medium hover:bg-surface-variant transition-colors flex items-center justify-center gap-2"
               >
-                <span className="material-symbols-outlined text-sm">domain</span>
+                <span className="material-symbols-outlined text-sm">
+                  domain
+                </span>
                 View Company
               </Link>
             </div>
@@ -196,15 +216,15 @@ export default async function JobDetailsPage({
 
         {/* ── Two Column Body ──────────────────────────── */}
         <div className="flex flex-col lg:flex-row gap-xl">
-
           {/* Main Content */}
           <main className="flex-1 min-w-0 space-y-xl">
-
             {/* Skills */}
             {job.skills && job.skills.length > 0 && (
               <section className="bg-surface-container-low border border-outline-variant/20 rounded-2xl p-lg">
                 <h2 className="font-sans text-xl font-bold mb-4 flex items-center gap-2">
-                  <span className="material-symbols-outlined text-primary">code</span>
+                  <span className="material-symbols-outlined text-primary">
+                    code
+                  </span>
                   Tech Stack & Skills
                 </h2>
                 <div className="flex flex-wrap gap-2">
@@ -223,17 +243,22 @@ export default async function JobDetailsPage({
             {/* Description */}
             <section className="bg-surface-container-low border border-outline-variant/20 rounded-2xl p-lg">
               <h2 className="font-sans text-xl font-bold mb-4 flex items-center gap-2">
-                <span className="material-symbols-outlined text-primary">description</span>
+                <span className="material-symbols-outlined text-primary">
+                  description
+                </span>
                 Job Description
               </h2>
               <div className="font-sans text-sm text-on-surface-variant leading-relaxed space-y-3">
                 {job.description ? (
-                  job.description.split("\n").map((para: string, idx: number) =>
-                    para.trim() ? <p key={idx}>{para}</p> : null
-                  )
+                  job.description
+                    .split("\n")
+                    .map((para: string, idx: number) =>
+                      para.trim() ? <p key={idx}>{para}</p> : null,
+                    )
                 ) : (
                   <p>
-                    No description provided. Please visit the company's website for more details.
+                    No description provided. Please visit the company's website
+                    for more details.
                   </p>
                 )}
               </div>
@@ -243,18 +268,24 @@ export default async function JobDetailsPage({
             {job.requirements && (
               <section className="bg-surface-container-low border border-outline-variant/20 rounded-2xl p-lg">
                 <h2 className="font-sans text-xl font-bold mb-4 flex items-center gap-2">
-                  <span className="material-symbols-outlined text-primary">checklist</span>
+                  <span className="material-symbols-outlined text-primary">
+                    checklist
+                  </span>
                   Requirements
                 </h2>
                 <div className="font-sans text-sm text-on-surface-variant leading-relaxed space-y-3">
-                  {job.requirements.split("\n").map((line: string, idx: number) =>
-                    line.trim() ? (
-                      <div key={idx} className="flex gap-2">
-                        <span className="material-symbols-outlined text-primary text-sm shrink-0 mt-0.5">check_circle</span>
-                        <p>{line}</p>
-                      </div>
-                    ) : null
-                  )}
+                  {job.requirements
+                    .split("\n")
+                    .map((line: string, idx: number) =>
+                      line.trim() ? (
+                        <div key={idx} className="flex gap-2">
+                          <span className="material-symbols-outlined text-primary text-sm shrink-0 mt-0.5">
+                            check_circle
+                          </span>
+                          <p>{line}</p>
+                        </div>
+                      ) : null,
+                    )}
                 </div>
               </section>
             )}
@@ -262,9 +293,12 @@ export default async function JobDetailsPage({
             {/* Apply CTA */}
             <div className="bg-gradient-to-r from-primary/10 to-secondary/10 border border-primary/20 rounded-2xl p-lg flex flex-col sm:flex-row items-center justify-between gap-4">
               <div>
-                <h3 className="font-sans text-lg font-bold mb-1">Ready to apply?</h3>
+                <h3 className="font-sans text-lg font-bold mb-1">
+                  Ready to apply?
+                </h3>
                 <p className="font-sans text-sm text-on-surface-variant">
-                  Don't miss out — submit your application directly on the company's site.
+                  Don't miss out — submit your application directly on the
+                  company's site.
                 </p>
               </div>
               <a
@@ -274,19 +308,21 @@ export default async function JobDetailsPage({
                 className="shrink-0 bg-primary text-on-primary px-8 py-3 rounded-xl font-sans font-bold hover:opacity-90 active:scale-95 transition-all flex items-center gap-2"
               >
                 Apply Now
-                <span className="material-symbols-outlined text-sm">open_in_new</span>
+                <span className="material-symbols-outlined text-sm">
+                  open_in_new
+                </span>
               </a>
             </div>
-
           </main>
 
           {/* Right Sidebar */}
           <aside className="lg:w-72 shrink-0">
             <div className="sticky top-24 space-y-md">
-
               {/* Company Card */}
               <div className="bg-surface-container-low border border-outline-variant/20 rounded-2xl p-lg">
-                <h3 className="font-sans text-lg font-bold mb-4">About the Company</h3>
+                <h3 className="font-sans text-lg font-bold mb-4">
+                  About the Company
+                </h3>
 
                 <div className="flex items-center gap-4 mb-4">
                   <div className="w-12 h-12 shrink-0 rounded-xl bg-surface flex items-center justify-center text-primary font-bold border border-outline-variant/30 overflow-hidden">
@@ -307,7 +343,9 @@ export default async function JobDetailsPage({
                       className="font-mono text-xs text-primary hover:underline flex items-center gap-1"
                     >
                       View Profile
-                      <span className="material-symbols-outlined text-xs">arrow_forward</span>
+                      <span className="material-symbols-outlined text-xs">
+                        arrow_forward
+                      </span>
                     </Link>
                   </div>
                 </div>
@@ -325,8 +363,12 @@ export default async function JobDetailsPage({
                       rel="noopener noreferrer"
                       className="flex items-center gap-2 text-sm font-sans text-on-surface-variant hover:text-primary transition-colors"
                     >
-                      <span className="material-symbols-outlined text-sm">language</span>
-                      {job.company.website.replace(/^https?:\/\//, "").replace(/\/$/, "")}
+                      <span className="material-symbols-outlined text-sm">
+                        language
+                      </span>
+                      {job.company.website
+                        .replace(/^https?:\/\//, "")
+                        .replace(/\/$/, "")}
                     </a>
                   )}
                 </div>
@@ -335,7 +377,9 @@ export default async function JobDetailsPage({
               {/* Related Jobs */}
               {relatedJobs.length > 0 && (
                 <div className="bg-surface-container-low border border-outline-variant/20 rounded-2xl p-lg">
-                  <h3 className="font-sans text-lg font-bold mb-4">More from {job.company.name}</h3>
+                  <h3 className="font-sans text-lg font-bold mb-4">
+                    More from {job.company.name}
+                  </h3>
                   <div className="space-y-3">
                     {relatedJobs.map((related) => (
                       <Link
@@ -347,7 +391,9 @@ export default async function JobDetailsPage({
                           {related.title}
                         </p>
                         <p className="font-mono text-xs text-on-surface-variant mt-1 flex items-center gap-1">
-                          <span className="material-symbols-outlined text-xs">location_on</span>
+                          <span className="material-symbols-outlined text-xs">
+                            location_on
+                          </span>
                           {related.location}
                         </p>
                       </Link>
@@ -358,14 +404,14 @@ export default async function JobDetailsPage({
                     className="mt-4 flex items-center gap-1 text-primary font-mono text-xs hover:underline"
                   >
                     View all roles
-                    <span className="material-symbols-outlined text-xs">arrow_forward</span>
+                    <span className="material-symbols-outlined text-xs">
+                      arrow_forward
+                    </span>
                   </Link>
                 </div>
               )}
-
             </div>
           </aside>
-
         </div>
       </div>
     </div>

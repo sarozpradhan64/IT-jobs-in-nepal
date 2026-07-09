@@ -5,7 +5,7 @@ import { CompanyData } from "../page";
 
 async function getCompanyDetails(slug: string): Promise<CompanyData | null> {
   try {
-    const res = await fetch(`http://127.0.0.1:8000/api/companies/${slug}`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/companies/${slug}`, {
       next: { revalidate: 60 },
     });
     if (!res.ok) {
@@ -22,7 +22,7 @@ async function getCompanyDetails(slug: string): Promise<CompanyData | null> {
 async function getCompanyJobs(companyId: number): Promise<JobData[]> {
   try {
     const res = await fetch(
-      `http://127.0.0.1:8000/api/jobs?company_id=${companyId}&limit=100`,
+      `${process.env.NEXT_PUBLIC_API_URL}/api/jobs?company_id=${companyId}&limit=100`,
       { next: { revalidate: 60 } }
     );
     if (!res.ok) return [];
