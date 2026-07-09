@@ -28,7 +28,6 @@ export function JobFilters() {
   const [searchTerm, setSearchTerm] = useState(searchParams.get("q") ?? "");
   const [debouncedSearchTerm] = useDebounce(searchTerm, 500);
 
-
   const createQueryString = useCallback(
     (name: string, value: string) => {
       const params = new URLSearchParams(searchParams.toString());
@@ -39,7 +38,7 @@ export function JobFilters() {
       }
       return params.toString();
     },
-    [searchParams]
+    [searchParams],
   );
 
   // Update query on debounce
@@ -52,13 +51,13 @@ export function JobFilters() {
     // For simplicity, let's just toggle single values or rewrite the param.
     // In our backend, usually employment_type / remote_status are single strings in the query for simple matching
     const current = searchParams.get(name) ?? "";
-    let updated = [];
-    if (current) {
-      updated = current.split(",");
-    }
+
+    let updated: string[] = current ? current.split(",") : [];
 
     if (checked) {
-      updated.push(value);
+      if (!updated.includes(value)) {
+        updated.push(value);
+      }
     } else {
       updated = updated.filter((v) => v !== value);
     }
@@ -66,7 +65,6 @@ export function JobFilters() {
     const newValue = updated.join(",");
     router.push(pathname + "?" + createQueryString(name, newValue));
   };
-
   const isChecked = (name: string, value: string) => {
     const current = searchParams.get(name) ?? "";
     return current.split(",").includes(value);
@@ -75,9 +73,13 @@ export function JobFilters() {
   return (
     <div className="space-y-6">
       <div>
-        <h4 className="font-mono text-sm font-medium text-on-surface-variant uppercase tracking-wider mb-2">Search</h4>
+        <h4 className="font-mono text-sm font-medium text-on-surface-variant uppercase tracking-wider mb-2">
+          Search
+        </h4>
         <div className="flex items-center px-3 gap-2 bg-surface-variant rounded-lg border border-outline-variant/30">
-          <span className="material-symbols-outlined text-outline text-sm">search</span>
+          <span className="material-symbols-outlined text-outline text-sm">
+            search
+          </span>
           <input
             type="text"
             placeholder="e.g. React, Python"
@@ -89,34 +91,58 @@ export function JobFilters() {
       </div>
 
       <div>
-        <h4 className="font-mono text-sm font-medium text-on-surface-variant uppercase tracking-wider mb-2">Role Type</h4>
+        <h4 className="font-mono text-sm font-medium text-on-surface-variant uppercase tracking-wider mb-2">
+          Role Type
+        </h4>
         <div className="space-y-2">
-          {["Frontend", "Backend", "Fullstack", "DevOps", "Data", "Design"].map((role) => (
-            <label key={role} className="flex items-center gap-2 cursor-pointer group">
-              <input
-                type="checkbox"
-                checked={isChecked("role", role.toLowerCase())}
-                onChange={(e) => handleCheckbox("role", role.toLowerCase(), e.target.checked)}
-                className="rounded border-outline-variant/30 bg-surface text-primary focus:ring-primary/20 cursor-pointer"
-              />
-              <span className="font-sans text-sm group-hover:text-primary transition-colors">{role}</span>
-            </label>
-          ))}
+          {["Frontend", "Backend", "Fullstack", "DevOps", "Data", "Design"].map(
+            (role) => (
+              <label
+                key={role}
+                className="flex items-center gap-2 cursor-pointer group"
+              >
+                <input
+                  type="checkbox"
+                  checked={isChecked("role", role.toLowerCase())}
+                  onChange={(e) =>
+                    handleCheckbox("role", role.toLowerCase(), e.target.checked)
+                  }
+                  className="rounded border-outline-variant/30 bg-surface text-primary focus:ring-primary/20 cursor-pointer"
+                />
+                <span className="font-sans text-sm group-hover:text-primary transition-colors">
+                  {role}
+                </span>
+              </label>
+            ),
+          )}
         </div>
       </div>
 
       <div>
-        <h4 className="font-mono text-sm font-medium text-on-surface-variant uppercase tracking-wider mb-2">Work Setup</h4>
+        <h4 className="font-mono text-sm font-medium text-on-surface-variant uppercase tracking-wider mb-2">
+          Work Setup
+        </h4>
         <div className="space-y-2">
           {["Onsite", "Hybrid", "Remote"].map((setup) => (
-            <label key={setup} className="flex items-center gap-2 cursor-pointer group">
+            <label
+              key={setup}
+              className="flex items-center gap-2 cursor-pointer group"
+            >
               <input
                 type="checkbox"
                 checked={isChecked("remote_status", setup.toLowerCase())}
-                onChange={(e) => handleCheckbox("remote_status", setup.toLowerCase(), e.target.checked)}
+                onChange={(e) =>
+                  handleCheckbox(
+                    "remote_status",
+                    setup.toLowerCase(),
+                    e.target.checked,
+                  )
+                }
                 className="rounded border-outline-variant/30 bg-surface text-primary focus:ring-primary/20 cursor-pointer"
               />
-              <span className="font-sans text-sm group-hover:text-primary transition-colors">{setup}</span>
+              <span className="font-sans text-sm group-hover:text-primary transition-colors">
+                {setup}
+              </span>
             </label>
           ))}
         </div>
