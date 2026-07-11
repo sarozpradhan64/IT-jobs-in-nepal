@@ -60,6 +60,7 @@ class JobResponse(JobBase):
     updated_at: datetime
     company: Company  # Company includes: id, slug, name, logo_url, website, overview
     skills: list[Skill] = []
+    source_name: str
 
     class Config:
         from_attributes = True

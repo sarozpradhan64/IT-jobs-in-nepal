@@ -96,6 +96,10 @@ class Job(Base):
         secondary=job_skills, back_populates="jobs"
     )
 
+    @property
+    def source_name(self) -> str:
+        return self.source.name if self.source else "Career Page"
+
 # Indexes for PostgreSQL Full-Text Search
 Index("idx_jobs_title_gin", Job.title, postgresql_using="gin")
 Index("idx_jobs_description_gin", Job.description, postgresql_using="gin")

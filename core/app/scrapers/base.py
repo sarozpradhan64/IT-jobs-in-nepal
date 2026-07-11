@@ -39,6 +39,18 @@ class BaseScraper(ABC):
         company_repo = CompanyRepository(db)
         job_repo = JobRepository(db)
         
+        if not source_id:
+            from app.models import ScraperSource
+            from sqlalchemy.future import select
+            result = await db.execute(select(ScraperSource).where(ScraperSource.name == self.source_name))
+            source_obj = result.scalars().first()
+            if not source_obj:
+                source_obj = ScraperSource(name=self.source_name, source_type="generic", base_url=self.base_url)
+                db.add(source_obj)
+                await db.commit()
+                await db.refresh(source_obj)
+            source_id = source_obj.id
+        
         for job_data in normalized_jobs:
             # Generate a simple slug for the company
             company_slug = job_data.company_name.lower().replace(" ", "-")
@@ -52,8 +64,14 @@ class BaseScraper(ABC):
             )
             
             # Create Job
-            # Check for existing job based on apply_url to avoid duplicates
-            # In a real scenario, a more robust duplicate check is needed
+            # Check for existing job based on apply_url or title
+            existing_job = await job_repo.get_by_apply_url(job_data.apply_url)
+            if not existing_job:
+                existing_job = await job_repo.get_by_company_and_title(company.id, job_data.title)
+            
+            if existing_job:
+                # Remove the previous one before creating the new one
+                await job_repo.delete(existing_job.id)
             
             # TODO: create skills
             

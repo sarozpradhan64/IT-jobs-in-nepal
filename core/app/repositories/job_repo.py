@@ -13,7 +13,7 @@ class JobRepository:
     async def get_by_id(self, job_id: int) -> Job | None:
         result = await self.db.execute(
             select(Job)
-            .options(selectinload(Job.company), selectinload(Job.skills))
+            .options(selectinload(Job.company), selectinload(Job.skills), selectinload(Job.source))
             .where(Job.id == job_id)
         )
         return result.scalars().first()
@@ -21,10 +21,29 @@ class JobRepository:
     async def get_by_slug(self, slug: str) -> Job | None:
         result = await self.db.execute(
             select(Job)
-            .options(selectinload(Job.company), selectinload(Job.skills))
+            .options(selectinload(Job.company), selectinload(Job.skills), selectinload(Job.source))
             .where(Job.slug == slug)
         )
         return result.scalars().first()
+
+    async def get_by_apply_url(self, apply_url: str) -> Job | None:
+        result = await self.db.execute(
+            select(Job).where(Job.apply_url == apply_url)
+        )
+        return result.scalars().first()
+
+    async def get_by_company_and_title(self, company_id: int, title: str) -> Job | None:
+        result = await self.db.execute(
+            select(Job).where(Job.company_id == company_id, Job.title == title)
+        )
+        return result.scalars().first()
+
+    async def delete(self, job_id: int) -> None:
+        result = await self.db.execute(select(Job).where(Job.id == job_id))
+        job = result.scalars().first()
+        if job:
+            await self.db.delete(job)
+            await self.db.commit()
 
     async def list_active_jobs(
         self, 
@@ -39,7 +58,7 @@ class JobRepository:
         skill_name: str | None = None
     ) -> list[Job]:
         from sqlalchemy import or_
-        query = select(Job).options(selectinload(Job.company), selectinload(Job.skills)).where(Job.is_active == True)
+        query = select(Job).options(selectinload(Job.company), selectinload(Job.skills), selectinload(Job.source)).where(Job.is_active == True)
         
         # We also want to filter out expired jobs if expiry_date is set
         query = query.where((Job.expiry_date == None) | (Job.expiry_date > datetime.utcnow()))
@@ -105,6 +124,16 @@ class JobRepository:
         )
         
         db_obj.skills.extend(skills_list)
+        
+        self.db.add(db_obj)
+        await self.db.commit()
+        await self.db.refresh(db_obj)
+        return db_obj
+
+    async def update(self, db_obj: Job, obj_in: JobUpdate | dict) -> Job:
+        update_data = obj_in if isinstance(obj_in, dict) else obj_in.model_dump(exclude_unset=True)
+        for field, value in update_data.items():
+            setattr(db_obj, field, value)
         
         self.db.add(db_obj)
         await self.db.commit()
