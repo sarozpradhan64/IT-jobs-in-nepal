@@ -1,0 +1,81 @@
+name: Daily IT Jobs Scraper
+
+on:
+  # Run every day at 19:15 UTC = 01:00 NPT (Nepal Time, UTC+5:45)
+  schedule:
+    - cron: "15 19 * * *"
+
+  # Allow manual triggering from the GitHub Actions tab — no inputs needed,
+  # always runs the full scrape (all portals + github companies crawler)
+  workflow_dispatch:
+
+jobs:
+  scrape:
+    name: Scrape IT Jobs
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: core
+
+    steps:
+      # ── 1. Checkout ──────────────────────────────────────────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          # Need full history so we can push the updated DB back
+          fetch-depth: 1
+
+      # ── 2. Python setup ──────────────────────────────────────────────────────
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: core/requirements.txt
+
+      # ── 3. Install dependencies ───────────────────────────────────────────────
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+
+      # ── 4. Install Playwright browsers ───────────────────────────────────────
+      - name: Install Playwright Chromium
+        run: playwright install --with-deps chromium
+
+      # ── 5. Create .env file ───────────────────────────────────────────────────
+      - name: Create .env file
+        run: |
+          cat > .env <<EOF
+          DATABASE_URL=sqlite+aiosqlite:///./it_jobs_nepal.db
+          SYNC_DATABASE_URL=sqlite:///./it_jobs_nepal.db
+          CACHE_DB_URL=sqlite+aiosqlite:///./cache.db
+          EOF
+          # Note: AIRTABLE_API_KEY is not required — the company list is fetched
+          # from the public GitHub README (mesaugat/tech-companies-in-nepal), not Airtable.
+
+      # ── 6. Apply DB migrations ────────────────────────────────────────────────
+      - name: Apply Alembic migrations
+        run: alembic upgrade head
+
+      # ── 7. Run scrapers (always all portals + github companies crawler) ──────
+      - name: Run portal scrapers
+        run: python -m app.scrapers.run --source all --github-companies
+
+      # ── 8. Commit updated database back to repo ───────────────────────────────
+      - name: Commit updated database
+        working-directory: .
+        run: |
+          git config --local user.name  "github-actions[bot]"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Stage only the database file
+          git add core/it_jobs_nepal.db
+
+          # Only commit if there are actual changes
+          if git diff --cached --quiet; then
+            echo "No changes to the database — nothing to commit."
+          else
+            TIMESTAMP=$(date -u '+%Y-%m-%d %H:%M UTC')
+            git commit -m "chore(db): daily scrape — ${TIMESTAMP} [skip ci]"
+            git push
+            echo "Database committed and pushed."
+          fi
