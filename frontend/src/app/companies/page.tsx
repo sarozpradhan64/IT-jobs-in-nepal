@@ -1,5 +1,5 @@
 import Link from "next/link";
-import React from "react";
+import { CompanySearch } from "@/components/ui/company-search";
 
 export interface CompanyData {
   id: number;
@@ -40,9 +40,10 @@ async function getCompanies(searchParams: {
 export default async function CompaniesPage({
   searchParams,
 }: {
-  searchParams: { [key: string]: string | string[] | undefined };
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
-  const companies: CompanyData[] = await getCompanies(searchParams);
+  const resolvedParams = await searchParams;
+  const companies: CompanyData[] = await getCompanies(resolvedParams);
 
   return (
     <div className="bg-surface-container-lowest min-h-screen py-lg">
@@ -58,22 +59,8 @@ export default async function CompaniesPage({
           </p>
         </div>
 
-        {/* Search & Filter Bar */}
-        <div className="glass-panel p-2 rounded-2xl flex flex-col md:flex-row items-stretch gap-2 shadow-sm mb-lg max-w-3xl">
-          <div className="grow flex items-center px-4 gap-3 bg-surface-container-low rounded-xl">
-            <span className="material-symbols-outlined text-outline">
-              search
-            </span>
-            <input
-              type="text"
-              placeholder="Search companies by name..."
-              className="w-full bg-transparent border-none focus:ring-0 text-on-surface font-sans py-4 outline-none placeholder:text-outline"
-            />
-          </div>
-          <button className="bg-primary text-on-primary px-8 py-4 rounded-xl font-sans font-bold hover:opacity-90 active:scale-95 transition-all">
-            Search
-          </button>
-        </div>
+        {/* Search Bar */}
+        <CompanySearch />
 
         {/* Companies Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-md">
