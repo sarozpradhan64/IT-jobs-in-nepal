@@ -35,9 +35,10 @@ async function getJobs(searchParams: {
 export default async function JobsPage({
   searchParams,
 }: {
-  searchParams: { [key: string]: string | string[] | undefined };
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
-  const jobs: JobData[] = await getJobs(searchParams);
+  const resolvedParams = await searchParams;
+  const jobs: JobData[] = await getJobs(resolvedParams);
 
   return (
     <div className="bg-surface-container-lowest min-h-screen py-lg">
