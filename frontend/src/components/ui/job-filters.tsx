@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { useCallback, useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 function useDebounce<T>(value: T, delay: number): [T] {
   const [debouncedValue, setDebouncedValue] = useState(value);
@@ -24,46 +24,36 @@ export function JobFilters() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  // Local state for search to debounce
   const [searchTerm, setSearchTerm] = useState(searchParams.get("q") ?? "");
   const [debouncedSearchTerm] = useDebounce(searchTerm, 500);
 
-  const createQueryString = useCallback(
-    (name: string, value: string) => {
-      const params = new URLSearchParams(searchParams.toString());
-      if (value) {
-        params.set(name, value);
-      } else {
-        params.delete(name);
-      }
-      return params.toString();
-    },
-    [searchParams],
-  );
+  const searchParamsRef = useRef(searchParams);
+  searchParamsRef.current = searchParams;
+  const isMounted = useRef(false);
 
-  // Update query on debounce
+  const buildQuery = (name: string, value: string) => {
+    const params = new URLSearchParams(searchParamsRef.current.toString());
+    if (value) params.set(name, value);
+    else params.delete(name);
+    return params.toString();
+  };
+
   useEffect(() => {
-    router.push(pathname + "?" + createQueryString("q", debouncedSearchTerm));
-  }, [debouncedSearchTerm, router, pathname, createQueryString]);
+    if (!isMounted.current) {
+      isMounted.current = true;
+      return;
+    }
+    const qs = buildQuery("q", debouncedSearchTerm);
+    router.push(pathname + (qs ? "?" + qs : ""));
+  }, [debouncedSearchTerm, router, pathname]);
 
   const handleCheckbox = (name: string, value: string, checked: boolean) => {
-    // Current query might have multiple values for a field (e.g., employment_type=full-time,part-time)
-    // For simplicity, let's just toggle single values or rewrite the param.
-    // In our backend, usually employment_type / remote_status are single strings in the query for simple matching
-    const current = searchParams.get(name) ?? "";
-
-    let updated: string[] = current ? current.split(",") : [];
-
-    if (checked) {
-      if (!updated.includes(value)) {
-        updated.push(value);
-      }
-    } else {
-      updated = updated.filter((v) => v !== value);
-    }
-
-    const newValue = updated.join(",");
-    router.push(pathname + "?" + createQueryString(name, newValue));
+    const current = searchParamsRef.current.get(name) ?? "";
+    let updated = current ? current.split(",") : [];
+    if (checked) { if (!updated.includes(value)) updated.push(value); }
+    else updated = updated.filter((v) => v !== value);
+    const qs = buildQuery(name, updated.join(","));
+    router.push(pathname + (qs ? "?" + qs : ""));
   };
   const isChecked = (name: string, value: string) => {
     const current = searchParams.get(name) ?? "";

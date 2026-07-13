@@ -48,9 +48,6 @@ IT-jobs-in-nepal/
 │   │   │   ├── stats.py           # Aggregated statistics
 │   │   │   └── router.py          # API router
 │   │   ├── scrapers/              # Scraping engines
-│   │   │   ├── portals/
-│   │   │   │   ├── merojob.py     # MeroJob-specific scraper
-│   │   │   │   └── jobsnepal.py   # JobsNepal-specific scraper
 │   │   │   ├── portal_engine.py   # Generic portal scraper (MeroJob, JobsNepal, LinkedIn)
 │   │   │   ├── career_page.py     # Smart company career page crawler (Playwright)
 │   │   │   ├── base.py            # Base scraper class
