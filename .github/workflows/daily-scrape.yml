@@ -65,8 +65,8 @@ jobs:
           git config --local user.name  "github-actions[bot]"
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
 
-          # Stage only the database file
-          git add core/it_jobs_nepal.db
+          # Stage only the database file (use -f to bypass .gitignore)
+          git add -f core/it_jobs_nepal.db
 
           # Only commit if there are actual changes
           if git diff --cached --quiet; then
