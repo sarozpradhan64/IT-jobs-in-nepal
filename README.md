@@ -23,7 +23,7 @@
 ### ✨ Key Features
 
 - 🔍 **Multi-source scraping** — MeroJob, JobsNepal, LinkedIn, and 50+ company career pages
-- ⚡ **Smart Career Page Engine** — Playwright-powered intelligent crawler that discovers job listings directly from company websites
+- ⚡ **Smart Career Page Engine** — Intelligent crawler that discovers job listings directly from company websites
 - 🕐 **Daily automated scraping** via GitHub Actions (runs at midnight NPT every day)
 - 🗄️ **SQLite / PostgreSQL** storage with full-text search support
 - 📡 **FastAPI REST API** with interactive OpenAPI docs
@@ -49,7 +49,7 @@ IT-jobs-in-nepal/
 │   │   │   └── router.py          # API router
 │   │   ├── scrapers/              # Scraping engines
 │   │   │   ├── portal_engine.py   # Generic portal scraper (MeroJob, JobsNepal, LinkedIn)
-│   │   │   ├── career_page.py     # Smart company career page crawler (Playwright)
+│   │   │   ├── career_page.py     # Smart company career page crawler
 │   │   │   ├── base.py            # Base scraper class
 │   │   │   ├── constants.py       # IT keyword filter list
 │   │   │   └── run.py             # CLI entry point
@@ -76,17 +76,6 @@ IT-jobs-in-nepal/
 
 ## 🚀 Getting Started
 
-### Prerequisites
-
-| Tool | Minimum Version |
-|------|----------------|
-| Python | 3.11+ |
-| Node.js | 18+ |
-| npm | 9+ |
-| Git | any |
-
----
-
 ### 🐍 Backend Setup (FastAPI)
 
 ```bash
@@ -109,17 +98,14 @@ source venv/bin/activate
 # 5. Install Python dependencies
 pip install -r requirements.txt
 
-# 6. Install Playwright browser (required for the smart career page scraper)
-playwright install chromium
-
-# 7. Set up environment variables
+# 6. Set up environment variables
 cp .env.example .env
 # Edit .env with your values (see Environment Variables section below)
 
-# 8. Apply database migrations
+# 7. Apply database migrations
 alembic upgrade head
 
-# 9. Start the development server
+# 8. Start the development server
 uvicorn main:app --reload --port 8000
 ```
 
@@ -196,7 +182,7 @@ python -m app.scrapers.run --source linkedin
 
 ### Smart Career Page Crawler
 
-The smart crawler fetches the company registry from the public [mesaugat/tech-companies-in-nepal](https://github.com/mesaugat/tech-companies-in-nepal) GitHub README and directly visits each company's careers page using Playwright.
+The smart crawler fetches the company registry from the public [mesaugat/tech-companies-in-nepal](https://github.com/mesaugat/tech-companies-in-nepal) GitHub README and directly visits each company's careers page.
 
 ```bash
 # Run the career page crawler only (no portal scraping)
@@ -340,7 +326,6 @@ This project is licensed under the **MIT License** — see the [LICENSE](LICENSE
 - [JobsNepal](https://www.jobsnepal.com) — Nepali job listings platform
 - [LinkedIn Jobs](https://www.linkedin.com/jobs) — Professional network job board
 - [FastAPI](https://fastapi.tiangolo.com) — Modern, high-performance Python web framework
-- [Playwright](https://playwright.dev) — Reliable browser automation for smart scraping
 - [Next.js](https://nextjs.org) — The React framework for production
 
 ---

@@ -1,46 +1,4 @@
 # IT Jobs Aggregator Nepal - Useful Commands
-
-## Frontend (Next.js)
-
-```bash
-# Navigate to frontend
-cd frontend
-
-# Install dependencies (Required after updating package.json)
-npm install
-
-# Run development server
-npm run dev
-
-# Build for production
-npm run build
-
-# Start production server
-npm run start
-```
-
-## Backend (FastAPI)
-
-```bash
-# Navigate to core (backend)
-cd core
-
-# Create a virtual environment
-python -m venv venv
-
-# Activate virtual environment
-# On Windows:
-venv\Scripts\activate
-# On macOS/Linux:
-source venv/bin/activate
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Run the FastAPI development server
-uvicorn main:app --reload --port 8000
-```
-
 ## Database (Alembic Migrations)
 
 *(Make sure you are in the `core` directory and virtual environment is activated)*
@@ -69,14 +27,4 @@ python -m app.scrapers.run --source all
 python -m app.scrapers.run --source merojob
 python -m app.scrapers.run --source jobsnepal
 python -m app.scrapers.run --source linkedin
-```
-
-## Docker (When configured)
-
-```bash
-# Build and start all services (frontend, backend, postgres)
-docker-compose up -d --build
-
-# Stop all services
-docker-compose down
 ```
