@@ -13,6 +13,8 @@ jobs:
   scrape:
     name: Scrape IT Jobs
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     defaults:
       run:
         working-directory: core
