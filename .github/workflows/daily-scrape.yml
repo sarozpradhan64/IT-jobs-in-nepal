@@ -39,11 +39,7 @@ jobs:
       - name: Install Python dependencies
         run: pip install -r requirements.txt
 
-      # ── 4. Install Playwright browsers ───────────────────────────────────────
-      - name: Install Playwright Chromium
-        run: playwright install --with-deps chromium
-
-      # ── 5. Create .env file ───────────────────────────────────────────────────
+      # ── 4. Create .env file ───────────────────────────────────────────────────
       - name: Create .env file
         run: |
           cat > .env <<EOF
@@ -54,15 +50,15 @@ jobs:
           # Note: AIRTABLE_API_KEY is not required — the company list is fetched
           # from the public GitHub README (mesaugat/tech-companies-in-nepal), not Airtable.
 
-      # ── 6. Apply DB migrations ────────────────────────────────────────────────
+      # ── 5. Apply DB migrations ────────────────────────────────────────────────
       - name: Apply Alembic migrations
         run: alembic upgrade head
 
-      # ── 7. Run scrapers (always all portals + github companies crawler) ──────
+      # ── 6. Run scrapers (always all portals + github companies crawler) ──────
       - name: Run portal scrapers
         run: python -m app.scrapers.run --source all --github-companies
 
-      # ── 8. Commit updated database back to repo ───────────────────────────────
+      # ── 7. Commit updated database back to repo ───────────────────────────────
       - name: Commit updated database
         working-directory: .
         run: |

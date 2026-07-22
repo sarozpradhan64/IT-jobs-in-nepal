@@ -21,7 +21,7 @@ class BaseScraper(ABC):
 
     @abstractmethod
     async def fetch(self) -> List[Any]:
-        """Fetch raw HTML or JSON payload using httpx or Playwright."""
+        """Fetch raw HTML or JSON payload using httpx."""
         pass
 
     @abstractmethod

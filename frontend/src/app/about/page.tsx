@@ -77,7 +77,7 @@ export default function AboutPage() {
                 How It Works
               </h2>
               <div className="font-sans text-on-surface-variant leading-relaxed mb-4">
-                We use custom Python web scrapers (FastAPI, Playwright) that
+                We use custom Python web scrapers that
                 intelligently extract job data from:
               </div>
               <ul className="space-y-3 font-sans text-on-surface-variant">
