@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ArrowLeft, MapPin, Clock, ExternalLink, Building2, Briefcase, BarChart, Globe, Banknote, Code2, FileText, ListChecks, CheckCircle2, ArrowRight } from "lucide-react";
 import { JobData } from "@/components/ui/job-card";
 
 async function getJobDetails(slug: string): Promise<JobData | null> {
@@ -45,16 +46,16 @@ function BadgePill({
   label,
   value,
 }: {
-  icon: string;
+  icon: React.ReactNode;
   label: string;
   value: string;
 }) {
   return (
     <div className="flex-1 min-w-[130px] bg-surface-container rounded-xl p-4">
       <div className="flex items-center gap-2 mb-1">
-        <span className="material-symbols-outlined text-primary text-sm">
+        <div className="text-primary text-sm flex items-center justify-center">
           {icon}
-        </span>
+        </div>
         <p className="font-mono text-xs text-on-surface-variant uppercase tracking-wider">
           {label}
         </p>
@@ -108,7 +109,7 @@ export default async function JobDetailsPage({
           href="/jobs"
           className="inline-flex items-center gap-2 text-on-surface-variant hover:text-primary font-mono text-sm mb-lg transition-colors"
         >
-          <span className="material-symbols-outlined text-sm">arrow_back</span>
+          <ArrowLeft className="text-sm" size={16} />
           Back to Job Board
         </Link>
 
@@ -146,18 +147,14 @@ export default async function JobDetailsPage({
                     •
                   </span>
                   <div className="flex items-center gap-1 text-on-surface-variant font-mono text-sm">
-                    <span className="material-symbols-outlined text-sm">
-                      location_on
-                    </span>
+                    <MapPin className="text-sm" size={16} />
                     {job.location}
                   </div>
                   <span className="text-outline-variant hidden md:inline">
                     •
                   </span>
                   <div className="flex items-center gap-1 text-on-surface-variant font-mono text-sm">
-                    <span className="material-symbols-outlined text-sm">
-                      schedule
-                    </span>
+                    <Clock className="text-sm" size={16} />
                     {postedDate}
                   </div>
                 </div>
@@ -173,17 +170,13 @@ export default async function JobDetailsPage({
                 className="bg-primary text-on-primary px-8 py-3 rounded-xl font-sans font-bold hover:opacity-90 active:scale-95 transition-all text-center flex items-center justify-center gap-2"
               >
                 Apply Now
-                <span className="material-symbols-outlined text-sm">
-                  open_in_new
-                </span>
+                <ExternalLink className="text-sm" size={16} />
               </a>
               <Link
                 href={`/companies/${companySlug}`}
                 className="border border-outline-variant/50 text-on-surface px-8 py-3 rounded-xl font-sans font-medium hover:bg-surface-variant transition-colors flex items-center justify-center gap-2"
               >
-                <span className="material-symbols-outlined text-sm">
-                  domain
-                </span>
+                <Building2 className="text-sm" size={16} />
                 View Company
               </Link>
             </div>
@@ -192,22 +185,22 @@ export default async function JobDetailsPage({
           {/* Meta Badges */}
           <div className="relative z-10 border-t border-outline-variant/20 mt-lg pt-lg flex flex-wrap gap-3">
             <BadgePill
-              icon="work"
+              icon={<Briefcase size={16} />}
               label="Employment Type"
               value={job.employment_type?.replace("-", " ") ?? "Full Time"}
             />
             <BadgePill
-              icon="signal_cellular_alt"
+              icon={<BarChart size={16} />}
               label="Experience"
               value={job.experience_level ?? "Mid"}
             />
             <BadgePill
-              icon="wifi"
+              icon={<Globe size={16} />}
               label="Work Setup"
               value={remoteLabel[job.remote_status] ?? job.remote_status}
             />
             <BadgePill
-              icon="payments"
+              icon={<Banknote size={16} />}
               label="Salary"
               value={job.salary ?? "Not Disclosed"}
             />
@@ -222,9 +215,7 @@ export default async function JobDetailsPage({
             {job.skills && job.skills.length > 0 && (
               <section className="bg-surface-container-low border border-outline-variant/20 rounded-2xl p-lg">
                 <h2 className="font-sans text-xl font-bold mb-4 flex items-center gap-2">
-                  <span className="material-symbols-outlined text-primary">
-                    code
-                  </span>
+                  <Code2 className="text-primary" size={24} />
                   Tech Stack & Skills
                 </h2>
                 <div className="flex flex-wrap gap-2">
@@ -243,9 +234,7 @@ export default async function JobDetailsPage({
             {/* Description */}
             <section className="bg-surface-container-low border border-outline-variant/20 rounded-2xl p-lg">
               <h2 className="font-sans text-xl font-bold mb-4 flex items-center gap-2">
-                <span className="material-symbols-outlined text-primary">
-                  description
-                </span>
+                <FileText className="text-primary" size={24} />
                 Job Description
               </h2>
               <div className="font-sans text-sm text-on-surface-variant leading-relaxed space-y-3">
@@ -268,9 +257,7 @@ export default async function JobDetailsPage({
             {job.requirements && (
               <section className="bg-surface-container-low border border-outline-variant/20 rounded-2xl p-lg">
                 <h2 className="font-sans text-xl font-bold mb-4 flex items-center gap-2">
-                  <span className="material-symbols-outlined text-primary">
-                    checklist
-                  </span>
+                  <ListChecks className="text-primary" size={24} />
                   Requirements
                 </h2>
                 <div className="font-sans text-sm text-on-surface-variant leading-relaxed space-y-3">
@@ -279,9 +266,7 @@ export default async function JobDetailsPage({
                     .map((line: string, idx: number) =>
                       line.trim() ? (
                         <div key={idx} className="flex gap-2">
-                          <span className="material-symbols-outlined text-primary text-sm shrink-0 mt-0.5">
-                            check_circle
-                          </span>
+                          <CheckCircle2 className="text-primary text-sm shrink-0 mt-0.5" size={16} />
                           <p>{line}</p>
                         </div>
                       ) : null,
@@ -308,9 +293,7 @@ export default async function JobDetailsPage({
                 className="shrink-0 bg-primary text-on-primary px-8 py-3 rounded-xl font-sans font-bold hover:opacity-90 active:scale-95 transition-all flex items-center gap-2"
               >
                 Apply Now
-                <span className="material-symbols-outlined text-sm">
-                  open_in_new
-                </span>
+                <ExternalLink className="text-sm" size={16} />
               </a>
             </div>
           </main>
@@ -343,9 +326,7 @@ export default async function JobDetailsPage({
                       className="font-mono text-xs text-primary hover:underline flex items-center gap-1"
                     >
                       View Profile
-                      <span className="material-symbols-outlined text-xs">
-                        arrow_forward
-                      </span>
+                      <ArrowRight className="text-xs" size={12} />
                     </Link>
                   </div>
                 </div>
@@ -363,9 +344,7 @@ export default async function JobDetailsPage({
                       rel="noopener noreferrer"
                       className="flex items-center gap-2 text-sm font-sans text-on-surface-variant hover:text-primary transition-colors"
                     >
-                      <span className="material-symbols-outlined text-sm">
-                        language
-                      </span>
+                      <Globe className="text-sm" size={16} />
                       {job.company.website
                         .replace(/^https?:\/\//, "")
                         .replace(/\/$/, "")}
@@ -391,9 +370,7 @@ export default async function JobDetailsPage({
                           {related.title}
                         </p>
                         <p className="font-mono text-xs text-on-surface-variant mt-1 flex items-center gap-1">
-                          <span className="material-symbols-outlined text-xs">
-                            location_on
-                          </span>
+                          <MapPin className="text-xs" size={12} />
                           {related.location}
                         </p>
                       </Link>
@@ -404,9 +381,7 @@ export default async function JobDetailsPage({
                     className="mt-4 flex items-center gap-1 text-primary font-mono text-xs hover:underline"
                   >
                     View all roles
-                    <span className="material-symbols-outlined text-xs">
-                      arrow_forward
-                    </span>
+                    <ArrowRight className="text-xs" size={12} />
                   </Link>
                 </div>
               )}

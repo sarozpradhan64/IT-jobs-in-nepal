@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Code, Database, Cloud, BarChart, ArrowRight } from "lucide-react";
 import { JobCard, JobData } from "@/components/ui/job-card";
 
 async function getStats() {
@@ -144,15 +145,10 @@ export default async function HomePage() {
               href="/jobs?q=frontend"
               className="group relative overflow-hidden rounded-xl border border-outline-variant/30 bg-surface-container-low p-md hover:border-primary/50 transition-all cursor-pointer"
             >
-              <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                <span className="material-symbols-outlined text-9xl">code</span>
+              <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity text-on-surface">
+                <Code size={128} />
               </div>
-              <span
-                className="material-symbols-outlined text-primary mb-md block text-4xl"
-                style={{ fontVariationSettings: "'FILL' 1" }}
-              >
-                code
-              </span>
+              <Code size={40} className="text-primary mb-md block" />
               <h3 className="font-sans text-2xl font-bold mb-1">Frontend</h3>
               <p className="font-mono text-xs text-on-surface-variant uppercase tracking-wider">
                 Active Positions
@@ -164,17 +160,10 @@ export default async function HomePage() {
               href="/jobs?q=backend"
               className="group relative overflow-hidden rounded-xl border border-outline-variant/30 bg-surface-container-low p-md hover:border-primary/50 transition-all cursor-pointer"
             >
-              <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                <span className="material-symbols-outlined text-9xl">
-                  database
-                </span>
+              <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity text-on-surface">
+                <Database size={128} />
               </div>
-              <span
-                className="material-symbols-outlined text-primary mb-md block text-4xl"
-                style={{ fontVariationSettings: "'FILL' 1" }}
-              >
-                database
-              </span>
+              <Database size={40} className="text-primary mb-md block" />
               <h3 className="font-sans text-2xl font-bold mb-1">Backend</h3>
               <p className="font-mono text-xs text-on-surface-variant uppercase tracking-wider">
                 Active Positions
@@ -186,17 +175,10 @@ export default async function HomePage() {
               href="/jobs?q=devops"
               className="group relative overflow-hidden rounded-xl border border-outline-variant/30 bg-surface-container-low p-md hover:border-primary/50 transition-all cursor-pointer"
             >
-              <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                <span className="material-symbols-outlined text-9xl">
-                  cloud_done
-                </span>
+              <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity text-on-surface">
+                <Cloud size={128} />
               </div>
-              <span
-                className="material-symbols-outlined text-primary mb-md block text-4xl"
-                style={{ fontVariationSettings: "'FILL' 1" }}
-              >
-                cloud_done
-              </span>
+              <Cloud size={40} className="text-primary mb-md block" />
               <h3 className="font-sans text-2xl font-bold mb-1">DevOps</h3>
               <p className="font-mono text-xs text-on-surface-variant uppercase tracking-wider">
                 Active Positions
@@ -208,17 +190,10 @@ export default async function HomePage() {
               href="/jobs?q=data"
               className="group relative overflow-hidden rounded-xl border border-outline-variant/30 bg-surface-container-low p-md hover:border-primary/50 transition-all cursor-pointer"
             >
-              <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                <span className="material-symbols-outlined text-9xl">
-                  analytics
-                </span>
+              <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity text-on-surface">
+                <BarChart size={128} />
               </div>
-              <span
-                className="material-symbols-outlined text-primary mb-md block text-4xl"
-                style={{ fontVariationSettings: "'FILL' 1" }}
-              >
-                analytics
-              </span>
+              <BarChart size={40} className="text-primary mb-md block" />
               <h3 className="font-sans text-2xl font-bold mb-1">
                 Data Science
               </h3>
