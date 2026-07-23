@@ -27,7 +27,7 @@ async function getStats() {
 async function getLatestJobs(): Promise<JobData[]> {
   try {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL || "${process.env.NEXT_PUBLIC_API_URL}"}/api/jobs?limit=4`,
+      `${process.env.NEXT_PUBLIC_API_URL || "${process.env.NEXT_PUBLIC_API_URL}"}/api/jobs?limit=10`,
       { next: { revalidate: 60 } },
     );
     if (!res.ok) return [];
