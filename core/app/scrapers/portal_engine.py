@@ -137,11 +137,14 @@ class SmartPortalScraper(BaseScraper):
                     if not title:
                          continue
 
+                    raw_logo = logo_tag.get("src") if logo_tag else None
+                    logo_url = urljoin(self.base_url, raw_logo) if raw_logo else None
+
                     jobs.append({
                         "title": title,
                         "company": company_tag.get_text(strip=True) if company_tag else "Unknown",
                         "location": location_tag.get_text(strip=True) if location_tag else "Nepal",
-                        "logo_url": logo_tag.get("src") if logo_tag else None,
+                        "logo_url": logo_url,
                         "apply_url": apply_url,
                     })
                 except Exception as exc:

@@ -23,6 +23,7 @@ class SmartCareerScraper(BaseScraper):
     def __init__(self, company_name: str, base_url: str):
         super().__init__(source_name=f"CareerPage:{company_name}", base_url=base_url)
         self.company_name = company_name
+        self.company_logo: Optional[str] = None
 
     async def run_smart_engine(self) -> List[JobCreate]:
         """Entry point for the Smart Engine."""
@@ -32,6 +33,8 @@ class SmartCareerScraper(BaseScraper):
             return []
 
         log.info(f"[{self.company_name}] Starting Smart Engine for {self.base_url}")
+
+        self.company_logo = await self._extract_logo()
 
         # Phase 1: Concurrent Discovery
         career_url = await self._discover_career_page()
@@ -50,6 +53,41 @@ class SmartCareerScraper(BaseScraper):
         # Phase 3: Universal Heuristic Fallback
         log.info(f"[{self.company_name}] Using Universal Heuristic Fallback Engine")
         return await self._fallback_extract(career_url)
+
+    # ---------------------------------------------------------
+    # Logo Extraction Phase
+    # ---------------------------------------------------------
+    async def _extract_logo(self) -> Optional[str]:
+        try:
+            html = await self.fetch_html(self.base_url)
+            soup = BeautifulSoup(html, "html.parser")
+            
+            # 1. Look for img inside nav or header
+            for tag_name in ["nav", "header"]:
+                for container in soup.find_all(tag_name):
+                    for img in container.find_all("img"):
+                        if self._is_logo_img(img):
+                            return self._resolve_logo_url(img)
+
+            # 2. Look anywhere for img with class/id/src containing "logo"
+            for img in soup.find_all("img"):
+                if self._is_logo_img(img):
+                    return self._resolve_logo_url(img)
+        except Exception as e:
+            log.warning(f"[{self.company_name}] Failed to extract logo: {e}")
+        return None
+
+    def _is_logo_img(self, img) -> bool:
+        src = img.get("src", "").lower()
+        alt = img.get("alt", "").lower()
+        cls = " ".join(img.get("class", [])) if isinstance(img.get("class"), list) else str(img.get("class", ""))
+        cls = cls.lower()
+        id_attr = img.get("id", "").lower()
+        return "logo" in src or "logo" in alt or "logo" in cls or "logo" in id_attr
+
+    def _resolve_logo_url(self, img) -> str:
+        src = img.get("src", "")
+        return urljoin(self.base_url, src)
 
     # ---------------------------------------------------------
     # Discovery Phase (Fully Concurrent)
@@ -270,7 +308,7 @@ class SmartCareerScraper(BaseScraper):
             apply_url=apply_url,
             source_name=self.source_name,
             company_name=self.company_name,
-            company_logo=None,
+            company_logo=self.company_logo,
             company_website=self.base_url,
             skills=[],
         )

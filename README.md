@@ -18,17 +18,13 @@
 
 ## 📖 Overview
 
-**IT Jobs Nepal** is an open-source job aggregator that automatically scrapes IT job listings from major Nepali job portals — MeroJob, JobsNepal, LinkedIn — and directly from company career pages. It exposes a clean REST API and a modern Next.js frontend, so developers, designers, and tech professionals in Nepal can discover all opportunities in one place.
+**IT Jobs Nepal** is an open-source job aggregator that automatically scrapes IT job listings from major Nepali job portals — MeroJob, JobsNepal, LinkedIn — and directly from company career pages. It exposes a clean REST API and a modern Next.js frontend, so developers, tech professionals in Nepal can discover all opportunities in one place.
 
 ### ✨ Key Features
 
-- 🔍 **Multi-source scraping** — MeroJob, JobsNepal, LinkedIn, and 50+ company career pages
+- 🔍 **Multi-source scraping** — 50+ company career pages, LinkedIn, MeroJob, and JobsNepal 
 - ⚡ **Smart Career Page Engine** — Intelligent crawler that discovers job listings directly from company websites
-- 🕐 **Daily automated scraping** via GitHub Actions (runs at midnight NPT every day)
-- 🗄️ **SQLite / PostgreSQL** storage with full-text search support
-- 📡 **FastAPI REST API** with interactive OpenAPI docs
-- 🎨 **Modern Next.js 16 frontend** with TailwindCSS and React Query
-- 🔄 **Alembic migrations** for schema version management
+- 🕐 **Daily automated scraping** via GitHub Actions
 
 ---
 
@@ -98,14 +94,10 @@ source venv/bin/activate
 # 5. Install Python dependencies
 pip install -r requirements.txt
 
-# 6. Set up environment variables
-cp .env.example .env
-# Edit .env with your values (see Environment Variables section below)
-
-# 7. Apply database migrations
+# 6. Apply database migrations
 alembic upgrade head
 
-# 8. Start the development server
+# 7. Start the development server
 uvicorn main:app --reload --port 8000
 ```
 
@@ -137,19 +129,13 @@ npm run dev
 
 ## ⚙️ Environment Variables
 
-### Backend — `core/.env`
+*Note: The backend works out-of-the-box with default SQLite settings and does not require a `.env` file for local development.*
+
+### Frontend — `frontend/.env.local` (Required)
 
 | Variable | Default | Required | Description |
 |----------|---------|----------|-------------|
-| `DATABASE_URL` | `sqlite+aiosqlite:///./it_jobs_nepal.db` | ✅ | Async SQLAlchemy database URL |
-| `SYNC_DATABASE_URL` | `sqlite:///./it_jobs_nepal.db` | ✅ | Sync URL used by Alembic for migrations |
-| `CACHE_DB_URL` | `sqlite+aiosqlite:///./cache.db` | ✅ | Transient scraper result cache |
-
-### Frontend — `frontend/.env.local`
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `NEXT_PUBLIC_API_URL` | `http://localhost:8000` | Backend API base URL |
+| `NEXT_PUBLIC_API_URL` | `http://localhost:8000` | ✅ | Backend API base URL |
 
 ---
 
