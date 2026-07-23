@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Link from "next/link";
+import Image from "next/image";
 import Navigation from "@/components/Navigation";
 import { Star } from "lucide-react";
 import { SiGithub } from "@icons-pack/react-simple-icons";
@@ -35,9 +36,10 @@ export default async function RootLayout({
             <div className="flex items-center gap-xs">
               <Link
                 href="/"
-                className="font-sans text-2xl font-bold text-on-surface"
+                className="flex items-center gap-3"
               >
-                IT Jobs Nepal
+                <Image src="/logo.png" alt="IT Jobs Nepal Logo" width={32} height={32} className="rounded-md" />
+                <span className="font-sans text-2xl font-bold text-on-surface">IT Jobs Nepal</span>
               </Link>
             </div>
             <Navigation />
