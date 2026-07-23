@@ -4,7 +4,7 @@
 
 **A comprehensive job aggregator platform for IT professionals in Nepal**
 
-[![Daily Scrape](https://github.com/sarozpradhan64/IT-jobs-in-nepal/actions/workflows/daily-scrape.yml/badge.svg)](https://github.com/sarozpradhan64/IT-jobs-in-nepal/actions/workflows/daily-scrape.yml)
+[![Weekly Scrape](https://github.com/sarozpradhan64/IT-jobs-in-nepal/actions/workflows/daily-scrape.yml/badge.svg)](https://github.com/sarozpradhan64/IT-jobs-in-nepal/actions/workflows/daily-scrape.yml)
 [![Python](https://img.shields.io/badge/Python-3.11%2B-blue?logo=python&logoColor=white)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.110%2B-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 [![Next.js](https://img.shields.io/badge/Next.js-16%2B-black?logo=next.js&logoColor=white)](https://nextjs.org/)
@@ -24,7 +24,7 @@
 
 - 🔍 **Multi-source scraping** — 50+ company career pages, LinkedIn, MeroJob, and JobsNepal 
 - ⚡ **Smart Career Page Engine** — Intelligent crawler that discovers job listings directly from company websites
-- 🕐 **Daily automated scraping** via GitHub Actions
+- 🕐 **Weekly automated scraping** via GitHub Actions
 
 ---
 
@@ -34,7 +34,7 @@
 IT-jobs-in-nepal/
 ├── .github/
 │   └── workflows/
-│       └── daily-scrape.yml       # GitHub Actions — daily cron scraper
+│       └── daily-scrape.yml       # GitHub Actions — weekly cron scraper
 │
 ├── core/                          # Python backend (FastAPI)
 │   ├── app/
@@ -260,11 +260,11 @@ alembic history
 
 ---
 
-## ⏰ GitHub Actions — Daily Automated Scraping
+## ⏰ GitHub Actions — Weekly Automated Scraping
 
 The workflow at `.github/workflows/daily-scrape.yml`:
 
-- ⏰ Runs automatically **every day at 18:15 UTC (midnight NPT — Nepal Time)**
+- ⏰ Runs automatically **every week on Sunday at 19:15 UTC (01:00 NPT — Nepal Time)**
 - 🕷️ Executes `python -m app.scrapers.run --source all` to scrape all portals
 - 💾 Commits the updated `it_jobs_nepal.db` back to the repository
 - 🖱️ Can also be triggered **manually** at any time from the GitHub Actions tab

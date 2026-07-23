@@ -1,9 +1,9 @@
-name: Daily IT Jobs Scraper
+name: Weekly IT Jobs Scraper
 
 on:
-  # Run every day at 19:15 UTC = 01:00 NPT (Nepal Time, UTC+5:45)
+  # Run every week on Sunday at 19:15 UTC = 01:00 NPT (Nepal Time, UTC+5:45)
   schedule:
-    - cron: "15 19 * * *"
+    - cron: "15 19 * * 0"
 
   # Allow manual triggering from the GitHub Actions tab — no inputs needed,
   # always runs the full scrape (all portals + github companies crawler)
@@ -73,7 +73,7 @@ jobs:
             echo "No changes to the database — nothing to commit."
           else
             TIMESTAMP=$(date -u '+%Y-%m-%d %H:%M UTC')
-            git commit -m "chore(db): daily scrape — ${TIMESTAMP} [skip ci]"
+            git commit -m "chore(db): weekly scrape — ${TIMESTAMP} [skip ci]"
             git push
             echo "Database committed and pushed."
           fi
