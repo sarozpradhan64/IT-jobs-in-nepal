@@ -25,10 +25,7 @@ async function getJobs(searchParams: {
   queryParams.append("skip", skip.toString());
   queryParams.append("limit", limit.toString());
 
-  // If there is a search term, call /api/jobs/search, otherwise /api/jobs
-  const endpoint = searchParams.q 
-    ? `/api/jobs/search?${queryParams.toString()}` 
-    : `/api/jobs?${queryParams.toString()}`;
+  const endpoint = `/api/jobs?${queryParams.toString()}`;
 
   try {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${endpoint}`, {

@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
+import { Search } from "lucide-react";
+
 export function HomeSearch() {
   const [searchTerm, setSearchTerm] = useState("");
   const router = useRouter();
@@ -23,7 +25,7 @@ export function HomeSearch() {
       className="grow flex flex-col md:flex-row items-stretch gap-2"
     >
       <div className="grow flex items-center px-4 gap-3 bg-surface-container-low rounded-xl">
-        <span className="material-symbols-outlined text-outline">search</span>
+        <Search size={20} className="text-outline shrink-0" />
         <input
           className="w-full bg-transparent border-none focus:ring-0 text-on-surface font-sans py-4 outline-none placeholder:text-outline"
           placeholder="Search roles, tech, or companies..."

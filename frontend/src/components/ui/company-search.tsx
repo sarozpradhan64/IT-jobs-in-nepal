@@ -3,6 +3,8 @@
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 
+import { Search, X } from "lucide-react";
+
 function useDebounce<T>(value: T, delay: number): [T] {
   const [debouncedValue, setDebouncedValue] = useState(value);
 
@@ -47,7 +49,7 @@ export function CompanySearch() {
   return (
     <div className="glass-panel p-2 rounded-2xl flex flex-col md:flex-row items-stretch gap-2 shadow-sm mb-lg max-w-3xl">
       <div className="grow flex items-center px-4 gap-3 bg-surface-container-low rounded-xl">
-        <span className="material-symbols-outlined text-outline">search</span>
+        <Search size={20} className="text-outline shrink-0" />
         <input
           type="text"
           placeholder="Search companies by name..."
@@ -58,10 +60,10 @@ export function CompanySearch() {
         {searchTerm && (
           <button
             onClick={() => setSearchTerm("")}
-            className="text-outline hover:text-on-surface transition-colors"
+            className="text-outline hover:text-on-surface transition-colors shrink-0"
             aria-label="Clear search"
           >
-            <span className="material-symbols-outlined text-base">close</span>
+            <X size={16} />
           </button>
         )}
       </div>

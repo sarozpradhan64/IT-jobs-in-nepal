@@ -16,6 +16,7 @@ class SearchService:
         skip: int = 0,
         limit: int = 50,
         category_slug: str | None = None,
+        sort_by: str = "date",
     ) -> list[Job]:
         stmt = self._build_search_query(query, category_slug)
         
