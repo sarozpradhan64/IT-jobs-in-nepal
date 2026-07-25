@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { JobCard, JobData } from "@/components/ui/job-card";
 import { CompanyData } from "../page";
+import { ArrowLeft, Globe, Briefcase, Inbox, ArrowRight } from "lucide-react";
 
 async function getCompanyDetails(slug: string): Promise<CompanyData | null> {
   try {
@@ -67,7 +68,7 @@ export default async function CompanyDetailsPage({
             href="/companies"
             className="inline-flex items-center gap-2 text-on-surface-variant hover:text-primary font-mono text-sm mb-lg transition-colors"
           >
-            <span className="material-symbols-outlined text-sm">arrow_back</span>
+            <ArrowLeft className="w-4 h-4" />
             All Companies
           </Link>
 
@@ -98,7 +99,7 @@ export default async function CompanyDetailsPage({
                     rel="noopener noreferrer"
                     className="flex items-center gap-1.5 text-on-surface-variant hover:text-primary font-mono text-sm transition-colors"
                   >
-                    <span className="material-symbols-outlined text-sm">language</span>
+                    <Globe className="w-4 h-4" />
                     Website
                   </a>
                 )}
@@ -109,7 +110,7 @@ export default async function CompanyDetailsPage({
                     rel="noopener noreferrer"
                     className="flex items-center gap-1.5 text-on-surface-variant hover:text-primary font-mono text-sm transition-colors"
                   >
-                    <span className="material-symbols-outlined text-sm">work</span>
+                    <Briefcase className="w-4 h-4" />
                     Careers Page
                   </a>
                 )}
@@ -158,7 +159,7 @@ export default async function CompanyDetailsPage({
                     className="flex items-center gap-3 text-sm font-sans text-on-surface-variant hover:text-primary transition-colors group"
                   >
                     <span className="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center group-hover:bg-primary/10 transition-colors">
-                      <span className="material-symbols-outlined text-sm">language</span>
+                      <Globe className="w-4 h-4" />
                     </span>
                     Visit Website
                   </a>
@@ -171,7 +172,7 @@ export default async function CompanyDetailsPage({
                     className="flex items-center gap-3 text-sm font-sans text-on-surface-variant hover:text-primary transition-colors group"
                   >
                     <span className="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center group-hover:bg-primary/10 transition-colors">
-                      <span className="material-symbols-outlined text-sm">work</span>
+                      <Briefcase className="w-4 h-4" />
                     </span>
                     Careers Page
                   </a>
@@ -197,7 +198,7 @@ export default async function CompanyDetailsPage({
               jobs.map((job) => <JobCard key={job.id} job={job} />)
             ) : (
               <div className="bg-surface-container-low border border-outline-variant/20 rounded-2xl p-xl text-center">
-                <span className="material-symbols-outlined text-outline text-5xl mb-4 block">inbox</span>
+                <Inbox className="w-12 h-12 mx-auto text-outline mb-4 block" />
                 <h3 className="font-sans text-xl font-bold mb-2">No open roles right now</h3>
                 <p className="text-on-surface-variant font-sans text-sm">
                   {company.name} doesn't have any active listings at the moment.
@@ -208,7 +209,7 @@ export default async function CompanyDetailsPage({
                   className="mt-6 inline-flex items-center gap-2 bg-primary text-on-primary px-6 py-3 rounded-xl font-sans font-bold hover:opacity-90 transition-all"
                 >
                   Browse Companies
-                  <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                  <ArrowRight className="w-4 h-4" />
                 </Link>
               </div>
             )}

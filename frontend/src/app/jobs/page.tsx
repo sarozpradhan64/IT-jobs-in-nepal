@@ -1,7 +1,9 @@
 import React from "react";
+import Link from "next/link";
 import { JobCard, JobData } from "@/components/ui/job-card";
 import { JobFilters } from "@/components/ui/job-filters";
 import { JobSort } from "@/components/ui/job-sort";
+import { Pagination } from "@/components/ui/pagination";
 import { SlidersHorizontal, SearchX } from "lucide-react";
 
 async function getJobs(searchParams: {
@@ -16,6 +18,12 @@ async function getJobs(searchParams: {
     queryParams.append("remote_status", searchParams.remote_status as string);
   if (searchParams.sort_by)
     queryParams.append("sort_by", searchParams.sort_by as string);
+  const page = searchParams.page ? parseInt(searchParams.page as string, 10) : 1;
+  const limit = 10;
+  const skip = (page - 1) * limit;
+
+  queryParams.append("skip", skip.toString());
+  queryParams.append("limit", limit.toString());
 
   // If there is a search term, call /api/jobs/search, otherwise /api/jobs
   const endpoint = searchParams.q 
@@ -28,14 +36,15 @@ async function getJobs(searchParams: {
     });
 
     if (!res.ok) {
-      return [];
+      return { jobs: [], total: 0 };
     }
 
     const data = await res.json();
-    return Array.isArray(data) ? data : [];
+    const total = parseInt(res.headers.get("X-Total-Count") || "0", 10);
+    return { jobs: Array.isArray(data) ? data : [], total };
   } catch (error) {
     console.error("Failed to fetch jobs:", error);
-    return [];
+    return { jobs: [], total: 0 };
   }
 }
 
@@ -58,8 +67,26 @@ export default async function JobsPage({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   const resolvedParams = await searchParams;
-  const jobs: JobData[] = await getJobs(resolvedParams);
+  const { jobs, total } = await getJobs(resolvedParams);
   const categories = await getCategories();
+  
+  const currentPage = resolvedParams.page ? parseInt(resolvedParams.page as string, 10) : 1;
+  const limit = 10;
+  
+
+  const totalPages = Math.max(1, Math.ceil(total / limit));
+  const hasNextPage = currentPage < totalPages;
+
+  const getPaginationUrl = (page: number) => {
+    const params = new URLSearchParams();
+    for (const [key, value] of Object.entries(resolvedParams)) {
+      if (value !== undefined) {
+        params.append(key, value as string);
+      }
+    }
+    params.set("page", page.toString());
+    return `/jobs?${params.toString()}`;
+  };
 
   return (
     <div className="bg-surface min-h-screen pb-xl relative">
@@ -173,14 +200,13 @@ export default async function JobsPage({
               )}
             </div>
 
-            {/* Pagination Placeholder */}
-            {jobs.length > 0 && (
-              <div className="mt-12 flex justify-center">
-                <button className="border border-outline-variant/50 text-on-surface px-8 py-3 rounded-xl font-sans font-medium text-sm hover:bg-surface-variant hover:border-primary/50 transition-all shadow-sm">
-                  Load More Jobs
-                </button>
-              </div>
-            )}
+            {/* Pagination Controls */}
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              hasNextPage={hasNextPage}
+              getPaginationUrl={getPaginationUrl}
+            />
           </div>
         </div>
       </div>
