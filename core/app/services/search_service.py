@@ -14,7 +14,9 @@ class SearchService:
         self,
         query: str,
         skip: int = 0,
-        limit: int = 50
+        limit: int = 50,
+        category_slug: str | None = None,
+        sort_by: str = "date"
     ) -> list[Job]:
         # Using simple ILIKE for fallback, but full-text search is configured via GIN indexes in postgres.
         # For a truly robust FTS in SQLAlchemy 2.0 with Postgres:
@@ -37,10 +39,22 @@ class SearchService:
                     Skill.name.ilike(search_pattern)
                 )
             )
-            .order_by(Job.posted_date.desc())
-            .offset(skip)
-            .limit(limit)
         )
+        
+        if category_slug:
+            from app.models import Category
+            stmt = stmt.join(Job.category).where(Category.slug == category_slug)
+            
+        if sort_by == "date":
+            stmt = stmt.order_by(Job.posted_date.desc())
+        elif sort_by == "salary":
+            stmt = stmt.order_by(Job.salary.desc().nulls_last())
+        elif sort_by == "title":
+            stmt = stmt.order_by(Job.title.asc())
+        else:
+            stmt = stmt.order_by(Job.posted_date.desc())
+            
+        stmt = stmt.offset(skip).limit(limit)
         
         result = await self.db.execute(stmt)
         # Unique is needed because of joins producing multiple rows per job

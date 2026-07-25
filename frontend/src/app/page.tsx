@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { Code, Database, Cloud, BarChart, ArrowRight } from "lucide-react";
+import { Code, Database, Cloud, BarChart, Terminal, Briefcase, Network, ArrowRight } from "lucide-react";
 import { JobCard, JobData } from "@/components/ui/job-card";
+import { HomeSearch } from "@/components/ui/home-search";
 
 async function getStats() {
   try {
@@ -58,56 +59,26 @@ export default async function HomePage() {
           {/* Modern Search Bar */}
           <div className="max-w-3xl mx-auto mb-lg">
             <div className="glass-panel p-2 rounded-2xl flex flex-col md:flex-row items-stretch gap-2 shadow-2xl">
-              <div className="grow flex items-center px-4 gap-3 bg-surface-container-low rounded-xl">
-                <span className="material-symbols-outlined text-outline">
-                  search
-                </span>
-                <input
-                  className="w-full bg-transparent border-none focus:ring-0 text-on-surface font-sans py-4 outline-none placeholder:text-outline"
-                  placeholder="Search roles, tech, or companies..."
-                  type="text"
-                />
-              </div>
-              <Link
-                href="/jobs"
-                className="bg-primary text-on-primary px-8 py-4 rounded-xl font-sans font-bold hover:opacity-90 active:scale-95 transition-all flex items-center justify-center gap-2"
-              >
-                Find My Next Role
-              </Link>
+              <HomeSearch />
             </div>
           </div>
 
           {/* Source Stats */}
           <div className="flex flex-wrap justify-center gap-md mt-lg">
             <div className="flex items-center gap-2 bg-surface-container-high px-4 py-2 rounded-full border border-outline-variant/30">
-              <span
-                className="material-symbols-outlined text-primary text-sm"
-                style={{ fontVariationSettings: "'FILL' 1" }}
-              >
-                terminal
-              </span>
+              <Terminal size={16} className="text-primary" />
               <span className="font-mono text-xs font-medium uppercase tracking-wider">
                 {stats.total_companies} Career Pages Scraped
               </span>
             </div>
             <div className="flex items-center gap-2 bg-surface-container-high px-4 py-2 rounded-full border border-outline-variant/30">
-              <span
-                className="material-symbols-outlined text-primary text-sm"
-                style={{ fontVariationSettings: "'FILL' 1" }}
-              >
-                work
-              </span>
+              <Briefcase size={16} className="text-primary" />
               <span className="font-mono text-xs font-medium uppercase tracking-wider">
                 {stats.total_jobs} Active Jobs
               </span>
             </div>
             <div className="flex items-center gap-2 bg-surface-container-high px-4 py-2 rounded-full border border-outline-variant/30">
-              <span
-                className="material-symbols-outlined text-primary text-sm"
-                style={{ fontVariationSettings: "'FILL' 1" }}
-              >
-                hub
-              </span>
+              <Network size={16} className="text-primary" />
               <span className="font-mono text-xs font-medium uppercase tracking-wider">
                 {stats.portals_integrated} Portals Integrated
               </span>
@@ -133,16 +104,14 @@ export default async function HomePage() {
               href="/jobs"
             >
               View All{" "}
-              <span className="material-symbols-outlined transition-transform group-hover:translate-x-1">
-                arrow_forward
-              </span>
+              <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
             </Link>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-md">
             {/* Frontend */}
             <Link
-              href="/jobs?q=frontend"
+              href="/jobs?category=frontend"
               className="group relative overflow-hidden rounded-xl border border-outline-variant/30 bg-surface-container-low p-md hover:border-primary/50 transition-all cursor-pointer"
             >
               <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity text-on-surface">
@@ -157,7 +126,7 @@ export default async function HomePage() {
 
             {/* Backend */}
             <Link
-              href="/jobs?q=backend"
+              href="/jobs?category=backend"
               className="group relative overflow-hidden rounded-xl border border-outline-variant/30 bg-surface-container-low p-md hover:border-primary/50 transition-all cursor-pointer"
             >
               <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity text-on-surface">
@@ -172,7 +141,7 @@ export default async function HomePage() {
 
             {/* DevOps */}
             <Link
-              href="/jobs?q=devops"
+              href="/jobs?category=devops"
               className="group relative overflow-hidden rounded-xl border border-outline-variant/30 bg-surface-container-low p-md hover:border-primary/50 transition-all cursor-pointer"
             >
               <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity text-on-surface">
@@ -187,7 +156,7 @@ export default async function HomePage() {
 
             {/* Data Science */}
             <Link
-              href="/jobs?q=data"
+              href="/jobs?category=data-science"
               className="group relative overflow-hidden rounded-xl border border-outline-variant/30 bg-surface-container-low p-md hover:border-primary/50 transition-all cursor-pointer"
             >
               <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity text-on-surface">
@@ -220,9 +189,7 @@ export default async function HomePage() {
               href="/jobs"
             >
               View All Jobs{" "}
-              <span className="material-symbols-outlined transition-transform group-hover:translate-x-1">
-                arrow_forward
-              </span>
+              <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
             </Link>
           </div>
           <div className="space-y-4">
