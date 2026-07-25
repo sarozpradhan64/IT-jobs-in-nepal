@@ -3,6 +3,7 @@ import "./globals.css";
 import Link from "next/link";
 import Image from "next/image";
 import Navigation from "@/components/Navigation";
+import MobileNavigation from "@/components/MobileNavigation";
 import { Star } from "lucide-react";
 import { SiGithub } from "@icons-pack/react-simple-icons";
 
@@ -29,7 +30,7 @@ export default async function RootLayout({
       <head>
         <title>IT Jobs Nepal</title>
       </head>
-      <body className="min-h-screen flex flex-col selection:bg-primary-container selection:text-on-primary-container bg-surface text-on-surface">
+      <body className="min-h-screen flex flex-col selection:bg-primary-container selection:text-on-primary-container bg-surface text-on-surface pb-16 md:pb-0">
         {/* Top Navigation Bar */}
         <header className="full-width top-0 sticky z-50 bg-surface/80 backdrop-blur-xl border-b border-outline-variant/20 shadow-sm transition-all duration-300">
           <div className="flex justify-between items-center h-16 px-md max-w-7xl mx-auto w-full">
@@ -93,6 +94,9 @@ export default async function RootLayout({
             </div>
           </div>
         </footer>
+        
+        {/* Native-like Bottom Navigation for Mobile */}
+        <MobileNavigation />
       </body>
     </html>
   );

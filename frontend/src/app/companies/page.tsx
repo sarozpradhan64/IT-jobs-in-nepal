@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { CompanySearch } from "@/components/ui/company-search";
+import { ArrowRight, Building2 } from "lucide-react";
 
 export interface CompanyData {
   id: number;
@@ -93,9 +94,7 @@ export default async function CompaniesPage({
                     </h3>
                     <div className="font-mono text-xs text-primary flex items-center gap-1 mt-1">
                       View Profile{" "}
-                      <span className="material-symbols-outlined text-[14px]">
-                        arrow_forward
-                      </span>
+                      <ArrowRight size={14} />
                     </div>
                   </div>
                 </div>
@@ -117,9 +116,7 @@ export default async function CompaniesPage({
             ))
           ) : (
             <div className="col-span-full bg-surface-container-low border border-outline-variant/20 rounded-xl p-xl text-center">
-              <span className="material-symbols-outlined text-outline text-5xl mb-4">
-                domain_disabled
-              </span>
+              <Building2 size={48} className="text-outline mx-auto mb-4 block" />
               <h3 className="font-sans text-2xl font-bold mb-2">
                 No companies found
               </h3>
