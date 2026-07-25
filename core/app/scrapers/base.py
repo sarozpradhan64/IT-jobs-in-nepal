@@ -3,6 +3,7 @@ from typing import Any, List, Dict
 from app.schemas.job import JobCreate
 from app.repositories.job_repo import JobRepository
 from app.repositories.company_repo import CompanyRepository
+from app.services.category_classifier import CategoryClassifier
 from sqlalchemy.ext.asyncio import AsyncSession
 import httpx
 import asyncio
@@ -51,6 +52,9 @@ class BaseScraper(ABC):
                 await db.refresh(source_obj)
             source_id = source_obj.id
         
+        # Load category classifier once for all jobs
+        classifier = await CategoryClassifier.load(db)
+        
         for job_data in normalized_jobs:
             # Generate a simple slug for the company
             company_slug = job_data.company_name.lower().replace(" ", "-")
@@ -73,13 +77,22 @@ class BaseScraper(ABC):
                 # Remove the previous one before creating the new one
                 await job_repo.delete(existing_job.id)
             
+            # Classify job
+            category_id = classifier.classify(
+                title=job_data.title,
+                description=job_data.description,
+                requirements=job_data.requirements,
+                responsibilities=job_data.responsibilities,
+            )
+            
             # TODO: create skills
             
             await job_repo.create(
                 obj_in=job_data,
                 company_id=company.id,
                 source_id=source_id,
-                skills_list=[]
+                skills_list=[],
+                category_id=category_id
             )
 
     async def run(self, db: AsyncSession, source_id: int | None = None) -> None:

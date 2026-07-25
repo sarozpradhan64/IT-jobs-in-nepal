@@ -54,6 +54,10 @@ jobs:
       - name: Apply Alembic migrations
         run: alembic upgrade head
 
+      # ── 5.1 Seed categories ───────────────────────────────────────────────────
+      - name: Seed categories
+        run: python seed_categories.py
+
       # ── 6. Run scrapers (always all portals + github companies crawler) ──────
       - name: Run portal scrapers
         run: python -m app.scrapers.run --source all --github-companies

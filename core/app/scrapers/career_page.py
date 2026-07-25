@@ -14,7 +14,12 @@ from app.schemas.job import JobCreate
 log = logging.getLogger(__name__)
 
 # Common direct paths to check – all probed concurrently
-CAREER_PATHS = ["/careers", "/jobs", "/openings", "/join-us", "/about/careers", "/work-with-us", "/vacancies"]
+CAREER_PATHS = [
+    "/careers", "/jobs", "/openings", "/join-us", "/about/careers",
+    "/work-with-us", "/vacancies", "/join", "/hiring", "/opportunities",
+    "/team/careers", "/company/careers", "/about/jobs", "/about/hiring",
+    "/work-here", "/career", "/vacancy",
+]
 
 # Placeholder / non-real domains to skip
 SKIP_DOMAINS = {"my.company", "example.com", "localhost", "yourdomain.com"}
@@ -92,13 +97,31 @@ class SmartCareerScraper(BaseScraper):
     # ---------------------------------------------------------
     # Discovery Phase (Fully Concurrent)
     # ---------------------------------------------------------
-    # Regex that a URL path must match to be considered a career page
-    CAREER_PATH_RE = re.compile(r'(?i)/(career|careers|jobs|vacancies|openings|join-us|work-with-us)')
+    # Regex that a URL path must match to be considered a career page (strict)
+    CAREER_PATH_RE = re.compile(
+        r'(?i)/(career|careers|jobs|vacancies|openings|join-us|work-with-us|join|hiring|opportunities|work-here|vacancy)'
+    )
+
+    # Looser regex: also catches fragment/query-based career anchors (#careers, ?tab=careers)
+    CAREER_LOOSE_RE = re.compile(
+        r'(?i)(career|careers|vacancies|openings|jobs|hiring|join.?us|work.?with.?us|opportunities)'
+    )
+
+    # Exact-match anchor texts that are unmistakably career-page links
+    CAREER_STRONG_TEXTS = re.compile(
+        r'(?i)^(careers?|jobs?|vacancies|openings?|join us|work with us|we.?re hiring|join our team|opportunities|hiring|open positions?)$'
+    )
 
     def _is_career_url(self, url: str) -> bool:
-        """Return True only if the URL path looks like a dedicated career/jobs page."""
+        """Return True only if the URL path looks like a dedicated career/jobs page (strict check)."""
         path = urlparse(url).path
         return bool(self.CAREER_PATH_RE.search(path))
+
+    def _is_career_url_loose(self, url: str) -> bool:
+        """Looser check: match career keywords anywhere in the full URL (path + fragment + query)."""
+        parsed = urlparse(url)
+        full = parsed.path + parsed.fragment + parsed.query
+        return bool(self.CAREER_LOOSE_RE.search(full))
 
     async def _check_path(self, client: httpx.AsyncClient, path: str) -> Optional[str]:
         """Probe a single career path; return URL only if it exists and is not an error page."""
@@ -117,23 +140,68 @@ class SmartCareerScraper(BaseScraper):
 
     async def _scrape_homepage_for_career_link(self, client: httpx.AsyncClient) -> Optional[str]:
         """
-        Fetch the homepage and look for links to a /career* page.
-        We only return links whose resolved path actually starts with a career pattern
-        (never the homepage itself or a generic service page).
+        Fetch the homepage and look for career-page links using a two-pass strategy:
+
+        Pass 1 — Strict: any anchor (anywhere on page) whose resolved URL path
+                  matches a known career-like pattern.
+        Pass 2 — Footer-aware loose: look specifically inside <footer> tags for
+                  anchors with strong career text ("Careers", "Join Us", etc.) and
+                  follow the link to verify it resolves to a non-error page.
+
+        This ensures we don't miss footer-only career links that point to
+        non-standard paths (e.g. /about#careers, /join, /team/open-roles).
         """
         try:
             resp = await client.get(self.base_url)
             resp.raise_for_status()
             soup = BeautifulSoup(resp.text, "html.parser")
-            career_regex = re.compile(r'(?i)\b(career|vacancies|job|opening|join.?us|work.?with)\b')
+            career_regex = re.compile(r'(?i)\b(career|vacancies|job|opening|join.?us|work.?with|hiring|opportunities)\b')
+
+            # ── Pass 1: Strict path match across the entire page ─────────────────
             for a in soup.find_all("a", href=True):
                 text = a.get_text(strip=True)
                 href = a["href"]
                 if career_regex.search(text) or career_regex.search(href):
                     full = urljoin(self.base_url, href)
-                    # Only accept if the resolved URL itself has a career-like path
                     if full.startswith("http") and self._is_career_url(full):
                         return full
+
+            # ── Pass 2: Footer-aware loose match ────────────────────────────────
+            # Many sites only put a "Careers" link in the footer with a non-standard path.
+            footer_candidates = []
+            for footer in soup.find_all(["footer", "div"], attrs={"id": re.compile(r'(?i)footer'), "class": re.compile(r'(?i)footer')}):
+                for a in footer.find_all("a", href=True):
+                    text = a.get_text(strip=True)
+                    href = a["href"]
+                    full = urljoin(self.base_url, href)
+                    if not full.startswith("http"):
+                        continue
+                    # Accept if text is a strong career signal OR URL loosely matches
+                    if self.CAREER_STRONG_TEXTS.match(text.strip()) or self._is_career_url_loose(full):
+                        footer_candidates.append(full)
+
+            # Also do a broader page-wide loose scan for strong text signals
+            for a in soup.find_all("a", href=True):
+                text = a.get_text(strip=True)
+                href = a["href"]
+                full = urljoin(self.base_url, href)
+                if not full.startswith("http"):
+                    continue
+                if self.CAREER_STRONG_TEXTS.match(text.strip()) and self._is_career_url_loose(full):
+                    footer_candidates.append(full)
+
+            # Verify each candidate by actually fetching it
+            for candidate in dict.fromkeys(footer_candidates):  # deduplicate, preserve order
+                try:
+                    r = await client.get(candidate)
+                    if r.status_code == 200:
+                        title = (BeautifulSoup(r.text, "html.parser").title.string or "").lower()
+                        if not any(bad in title for bad in ["404", "not found", "error", "page not found"]):
+                            log.debug(f"[{self.company_name}] Loose-match career page found: {r.url}")
+                            return str(r.url)  # use final redirected URL
+                except Exception:
+                    continue
+
         except Exception:
             pass
         return None
@@ -146,13 +214,20 @@ class SmartCareerScraper(BaseScraper):
         """
         headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) ITJobsNepal/1.0"}
         async with httpx.AsyncClient(timeout=8.0, follow_redirects=True, headers=headers) as client:
-            tasks = [self._check_path(client, p) for p in CAREER_PATHS]
-            tasks.append(self._scrape_homepage_for_career_link(client))
-            results = await asyncio.gather(*tasks, return_exceptions=True)
+            path_tasks = [self._check_path(client, p) for p in CAREER_PATHS]
+            homepage_task = self._scrape_homepage_for_career_link(client)
+            *path_results, homepage_result = await asyncio.gather(*path_tasks, homepage_task, return_exceptions=True)
 
-        for r in results:
+        # Path probes: apply strict check (URLs are well-known paths we probed directly)
+        for r in path_results:
             if isinstance(r, str) and self._is_career_url(r):
                 return r
+
+        # Homepage scraper: already verified as a live, non-error page — accept with loose check
+        # (covers footer links like /join, /about#careers, non-standard paths)
+        if isinstance(homepage_result, str) and homepage_result:
+            if self._is_career_url(homepage_result) or self._is_career_url_loose(homepage_result):
+                return homepage_result
 
         return None  # No career page found — skip this company entirely
 

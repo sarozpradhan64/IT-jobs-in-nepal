@@ -55,10 +55,12 @@ class JobRepository:
         employment_type: str | None = None,
         experience_level: str | None = None,
         remote_status: str | None = None,
-        skill_name: str | None = None
+        skill_name: str | None = None,
+        category_slug: str | None = None,
+        sort_by: str | None = "date"
     ) -> list[Job]:
         from sqlalchemy import or_
-        query = select(Job).options(selectinload(Job.company), selectinload(Job.skills), selectinload(Job.source)).where(Job.is_active == True)
+        query = select(Job).options(selectinload(Job.company), selectinload(Job.skills), selectinload(Job.source), selectinload(Job.category)).where(Job.is_active == True)
         
         # We also want to filter out expired jobs if expiry_date is set
         query = query.where((Job.expiry_date == None) | (Job.expiry_date > datetime.utcnow()))
@@ -99,11 +101,24 @@ class JobRepository:
                 if len(skills) > 0 else True
             )
             
-        query = query.order_by(Job.posted_date.desc()).offset(skip).limit(limit)
+        if category_slug:
+            from app.models import Category
+            query = query.join(Job.category).where(Category.slug == category_slug)
+            
+        if sort_by == "date":
+            query = query.order_by(Job.posted_date.desc())
+        elif sort_by == "salary":
+            query = query.order_by(Job.salary.desc().nulls_last())
+        elif sort_by == "title":
+            query = query.order_by(Job.title.asc())
+        else:
+            query = query.order_by(Job.posted_date.desc())
+            
+        query = query.offset(skip).limit(limit)
         result = await self.db.execute(query)
         return list(result.scalars().unique().all())
 
-    async def create(self, obj_in: JobCreate, company_id: int, source_id: int | None, skills_list: list[Skill]) -> Job:
+    async def create(self, obj_in: JobCreate, company_id: int, source_id: int | None, skills_list: list[Skill], category_id: int | None = None) -> Job:
         db_obj = Job(
             title=obj_in.title,
             slug=f"{obj_in.company_name.lower().replace(' ', '-')}-{obj_in.title.lower().replace(' ', '-')}", # Basic slug fallback
@@ -120,7 +135,8 @@ class JobRepository:
             apply_url=obj_in.apply_url,
             source_id=source_id,
             source_url=obj_in.source_url,
-            remote_status=obj_in.remote_status
+            remote_status=obj_in.remote_status,
+            category_id=category_id,
         )
         
         db_obj.skills.extend(skills_list)

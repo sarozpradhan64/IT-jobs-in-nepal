@@ -1,0 +1,126 @@
+{
+  "version": "1.0",
+  "description": "IT job category taxonomy with keyword matchers for classifying scraped job listings",
+  "categories": [
+    {
+      "slug": "frontend",
+      "name": "Frontend Development",
+      "keywords": ["frontend", "front-end", "front end", "react", "vue", "angular", "next.js", "nextjs", "nuxt", "svelte", "html", "css", "javascript", "typescript", "ui developer", "tailwind", "web developer"]
+    },
+    {
+      "slug": "backend",
+      "name": "Backend Development",
+      "keywords": ["backend", "back-end", "back end", "node.js", "nodejs", "django", "laravel", "flask", "fastapi", "spring boot", "express.js", "ruby on rails", "php", "api developer", "server-side"]
+    },
+    {
+      "slug": "fullstack",
+      "name": "Full Stack Development",
+      "keywords": ["full stack", "fullstack", "full-stack", "mern", "mean stack", "web application developer"]
+    },
+    {
+      "slug": "mobile",
+      "name": "Mobile Development",
+      "keywords": ["android", "ios developer", "flutter", "react native", "kotlin", "swift", "mobile app developer", "xamarin", "ionic"]
+    },
+    {
+      "slug": "devops",
+      "name": "DevOps & Infrastructure",
+      "keywords": ["devops", "sre", "site reliability", "kubernetes", "docker", "ci/cd", "cicd", "jenkins", "terraform", "ansible", "infrastructure engineer", "platform engineer", "gitops"]
+    },
+    {
+      "slug": "cloud",
+      "name": "Cloud Engineering",
+      "keywords": ["cloud engineer", "aws", "azure", "gcp", "google cloud", "cloud architect", "cloud administrator", "cloud infrastructure"]
+    },
+    {
+      "slug": "data-science",
+      "name": "Data Science & Machine Learning",
+      "keywords": ["data scientist", "machine learning", "ml engineer", "deep learning", "nlp", "computer vision", "ai engineer", "artificial intelligence", "llm", "pytorch", "tensorflow"]
+    },
+    {
+      "slug": "data-engineering",
+      "name": "Data Engineering",
+      "keywords": ["data engineer", "etl", "data pipeline", "spark", "hadoop", "airflow", "data warehouse", "big data"]
+    },
+    {
+      "slug": "data-analytics",
+      "name": "Data Analytics & BI",
+      "keywords": ["data analyst", "business intelligence", "power bi", "tableau", "reporting analyst", "bi developer", "analytics"]
+    },
+    {
+      "slug": "qa-testing",
+      "name": "QA & Testing",
+      "keywords": ["qa engineer", "quality assurance", "software tester", "test automation", "sdet", "manual tester", "selenium", "cypress"]
+    },
+    {
+      "slug": "cybersecurity",
+      "name": "Cybersecurity",
+      "keywords": ["security engineer", "cybersecurity", "penetration tester", "pentester", "infosec", "soc analyst", "security analyst", "ethical hacker", "vapt"]
+    },
+    {
+      "slug": "database",
+      "name": "Database Administration",
+      "keywords": ["dba", "database administrator", "sql developer", "mysql", "postgresql", "mongodb", "oracle dba", "database engineer"]
+    },
+    {
+      "slug": "network-systems",
+      "name": "Network & Systems Administration",
+      "keywords": ["network engineer", "system administrator", "sysadmin", "network administrator", "it support", "infrastructure administrator", "linux administrator"]
+    },
+    {
+      "slug": "ui-ux",
+      "name": "UI/UX Design",
+      "keywords": ["ui designer", "ux designer", "ui/ux", "product designer", "figma", "user experience", "user interface designer", "graphic designer"]
+    },
+    {
+      "slug": "product-management",
+      "name": "Product Management",
+      "keywords": ["product manager", "product owner", "technical product manager", "product analyst"]
+    },
+    {
+      "slug": "project-management",
+      "name": "Project Management",
+      "keywords": ["project manager", "scrum master", "agile coach", "delivery manager", "it project manager"]
+    },
+    {
+      "slug": "game-development",
+      "name": "Game Development",
+      "keywords": ["game developer", "unity developer", "unreal engine", "game programmer", "gameplay engineer"]
+    },
+    {
+      "slug": "embedded-iot",
+      "name": "Embedded Systems & IoT",
+      "keywords": ["embedded systems", "firmware engineer", "iot developer", "embedded software", "microcontroller", "rtos"]
+    },
+    {
+      "slug": "blockchain",
+      "name": "Blockchain & Web3",
+      "keywords": ["blockchain developer", "web3", "smart contract", "solidity", "crypto developer", "defi"]
+    },
+    {
+      "slug": "erp-crm",
+      "name": "ERP/CRM Development",
+      "keywords": ["salesforce developer", "sap developer", "odoo developer", "dynamics 365", "erp consultant", "crm developer"]
+    },
+    {
+      "slug": "it-support",
+      "name": "IT Support & Helpdesk",
+      "keywords": ["help desk", "technical support", "it technician", "desktop support", "it officer"]
+    },
+    {
+      "slug": "tech-lead-management",
+      "name": "Engineering Leadership",
+      "keywords": ["engineering manager", "tech lead", "technical lead", "cto", "vp of engineering", "head of engineering"]
+    },
+    {
+      "slug": "wordpress-cms",
+      "name": "WordPress & CMS Development",
+      "keywords": ["wordpress developer", "cms developer", "shopify developer", "wix developer", "drupal"]
+    },
+    {
+      "slug": "other",
+      "name": "Other IT",
+      "keywords": []
+    }
+  ]
+}
