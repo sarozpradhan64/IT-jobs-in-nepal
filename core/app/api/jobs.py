@@ -20,6 +20,8 @@ async def list_jobs(
     experience_level: str | None = None,
     remote_status: str | None = None,
     skill: str | None = None,
+    category: str | None = None,
+    sort_by: str = Query("date", description="Sort by date, salary, or title"),
     db: AsyncSession = Depends(get_db)
 ):
     repo = JobRepository(db)
@@ -32,7 +34,9 @@ async def list_jobs(
         employment_type=employment_type,
         experience_level=experience_level,
         remote_status=remote_status,
-        skill_name=skill
+        skill_name=skill,
+        category_slug=category,
+        sort_by=sort_by
     )
     return jobs
 
@@ -41,10 +45,12 @@ async def search_jobs(
     q: str = Query(..., min_length=2),
     skip: int = 0,
     limit: int = Query(50, le=100),
+    category: str | None = None,
+    sort_by: str = Query("date", description="Sort by date, salary, or title"),
     db: AsyncSession = Depends(get_db)
 ):
     service = SearchService(db)
-    jobs = await service.search_jobs(query=q, skip=skip, limit=limit)
+    jobs = await service.search_jobs(query=q, skip=skip, limit=limit, category_slug=category, sort_by=sort_by)
     return jobs
 
 @router.get("/{slug}", response_model=JobResponse)

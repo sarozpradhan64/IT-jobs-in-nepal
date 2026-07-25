@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import List
-from sqlalchemy import Table, Column, Integer, String, Text, DateTime, ForeignKey, Boolean, Index
+from sqlalchemy import Table, Column, Integer, String, Text, DateTime, ForeignKey, Boolean, Index, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.database import Base
 
@@ -11,6 +11,38 @@ job_skills = Table(
     Column("job_id", Integer, ForeignKey("jobs.id", ondelete="CASCADE"), primary_key=True),
     Column("skill_id", Integer, ForeignKey("skills.id", ondelete="CASCADE"), primary_key=True),
 )
+
+class Category(Base):
+    __tablename__ = "categories"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    slug: Mapped[str] = mapped_column(String(100), unique=True, index=True, nullable=False)
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False
+    )
+
+    keywords: Mapped[List["CategoryKeyword"]] = relationship(
+        back_populates="category", cascade="all, delete-orphan"
+    )
+    jobs: Mapped[List["Job"]] = relationship(back_populates="category")
+
+
+class CategoryKeyword(Base):
+    __tablename__ = "category_keywords"
+    __table_args__ = (
+        UniqueConstraint("category_id", "keyword", name="uq_category_keyword"),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    category_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("categories.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    keyword: Mapped[str] = mapped_column(String(255), nullable=False)
+
+    category: Mapped["Category"] = relationship(back_populates="keywords")
+
 
 class Company(Base):
     __tablename__ = "companies"
@@ -84,6 +116,9 @@ class Job(Base):
     remote_status: Mapped[str] = mapped_column(
         String(50), default="onsite", nullable=False
     )  # onsite, hybrid, remote
+    category_id: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey("categories.id", ondelete="SET NULL"), nullable=True, index=True
+    )
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, index=True, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(
@@ -92,6 +127,7 @@ class Job(Base):
 
     company: Mapped["Company"] = relationship(back_populates="jobs")
     source: Mapped["ScraperSource | None"] = relationship(back_populates="jobs")
+    category: Mapped["Category | None"] = relationship(back_populates="jobs")
     skills: Mapped[List["Skill"]] = relationship(
         secondary=job_skills, back_populates="jobs"
     )

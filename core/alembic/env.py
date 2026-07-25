@@ -22,7 +22,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from app.config import settings
 from app.database import Base
-from app.models import Job, Company, Skill, ScraperSource  # Ensure models are imported
+from app.models import Job, Company, Skill, ScraperSource, Category, CategoryKeyword  # Ensure models are imported
 
 target_metadata = Base.metadata
 

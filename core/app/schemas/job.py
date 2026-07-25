@@ -61,6 +61,7 @@ class JobResponse(JobBase):
     company: Company  # Company includes: id, slug, name, logo_url, website, overview
     skills: list[Skill] = []
     source_name: str
+    category_id: int | None = None
 
     class Config:
         from_attributes = True
