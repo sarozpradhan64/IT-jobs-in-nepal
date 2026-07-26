@@ -3,27 +3,30 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 
 from app.database import get_db
-from app.models import Job, Company
+from app.models import Job, Company, Category
+from app.scrapers.portal_engine import PORTAL_CONFIGS
 
 router = APIRouter()
 
 @router.get("/")
 async def get_stats(db: AsyncSession = Depends(get_db)):
-    # Count active jobs
-    jobs_count_query = select(func.count(Job.id)).where(Job.is_active == True)
-    jobs_count_result = await db.execute(jobs_count_query)
-    jobs_count = jobs_count_result.scalar() or 0
+    jobs_count = (await db.execute(select(func.count(Job.id)).where(Job.is_active == True))).scalar() or 0
+    companies_count = (await db.execute(
+        select(func.count(Company.id)).where(Company.career_page.isnot(None))
+    )).scalar() or 0
 
-    # Count companies
-    companies_count_query = select(func.count(Company.id))
-    companies_count_result = await db.execute(companies_count_query)
-    companies_count = companies_count_result.scalar() or 0
-
-    # Number of portals/career pages can be mocked or derived from the companies
-    # Let's say portals integrated is 10 for now, and career pages is companies_count
-    
     return {
         "total_jobs": jobs_count,
         "total_companies": companies_count,
-        "portals_integrated": 10
+        "portals_integrated": len(PORTAL_CONFIGS),
     }
+
+@router.get("/roles")
+async def get_role_stats(db: AsyncSession = Depends(get_db)):
+    rows = await db.execute(
+        select(Category.slug, func.count(Job.id))
+        .join(Job, Job.category_id == Category.id)
+        .where(Job.is_active == True)
+        .group_by(Category.slug)
+    )
+    return {slug: count for slug, count in rows.all()}
