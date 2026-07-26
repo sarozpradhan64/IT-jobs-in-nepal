@@ -28,17 +28,16 @@ logging.getLogger("httpx").setLevel(logging.WARNING)
 LOGS_DIR = Path(__file__).resolve().parents[3] / "logs"
 
 
-def _append_failure(log_file: Path, source: str, source_type: str, error: str) -> None:
-    """Append a failure entry to the run's JSON log file."""
-    entry = {
-        "timestamp": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
-        "source": source,
-        "source_type": source_type,
-        "error": error,
-    }
+def _append_log(log_file: Path, entry: dict) -> None:
+    """Append an entry to the run's JSON log file."""
+    entry["timestamp"] = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
     existing: list = json.loads(log_file.read_text(encoding="utf-8")) if log_file.exists() else []
     existing.append(entry)
     log_file.write_text(json.dumps(existing, indent=2), encoding="utf-8")
+
+
+def _append_failure(log_file: Path, source: str, source_type: str, error: str) -> None:
+    _append_log(log_file, {"source": source, "source_type": source_type, "status": "error", "error": error})
 
 SCRAPERS = {
     portal: (lambda p=portal: SmartPortalScraper(p))
@@ -82,7 +81,16 @@ async def run_smart_crawlers(dev_mode: bool = False, log_file: Path | None = Non
                     total_jobs_found += len(jobs)
                     companies_with_jobs += 1
                     pbar.set_postfix({"company": name[:15], "total_jobs": total_jobs_found})
-                    
+                    if log_file:
+                        _append_log(log_file, {
+                            "source": name,
+                            "source_type": "career_page",
+                            "status": "success",
+                            "company": name,
+                            "website": url,
+                            "jobs_found": len(jobs),
+                            "job_titles": [j.title for j in jobs],
+                        })
                     if dev_mode and companies_with_jobs >= DEV_COMPANY_LIMIT:
                         tqdm.write(f"[DEV MODE] Reached {DEV_COMPANY_LIMIT} companies with jobs. Stopping early.")
                         break
@@ -115,9 +123,16 @@ async def run_scraper(source: str, github: bool = False, dev_mode: bool = False)
         try:
             async with SessionLocal() as db:
                 scraper = ScraperClass()
-                await scraper.run(db)
+                jobs = await scraper.run(db)
                 await db.commit()
             log.info(f"Finished scraper: {name}")
+            _append_log(log_file, {
+                "source": name,
+                "source_type": "portal",
+                "status": "success",
+                "jobs_found": len(jobs),
+                "job_titles": [{"title": j.title, "company": j.company_name} for j in jobs],
+            })
         except Exception as e:
             log.error(f"Scraper '{name}' failed: {e}", exc_info=True)
             _append_failure(log_file, name, "portal", str(e))
