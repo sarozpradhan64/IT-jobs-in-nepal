@@ -95,9 +95,10 @@ class BaseScraper(ABC):
                 category_id=category_id
             )
 
-    async def run(self, db: AsyncSession, source_id: int | None = None) -> None:
+    async def run(self, db: AsyncSession, source_id: int | None = None) -> List[JobCreate]:
         """Execute the full scraping pipeline."""
         raw_data = await self.fetch()
         parsed_data = self.parse(raw_data)
         normalized = self.normalize(parsed_data)
         await self.save(db, normalized, source_id)
+        return normalized
