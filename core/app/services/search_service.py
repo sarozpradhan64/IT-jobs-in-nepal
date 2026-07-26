@@ -16,12 +16,36 @@ class SearchService:
         skip: int = 0,
         limit: int = 50,
         category_slug: str | None = None,
-        sort_by: str = "date"
+        sort_by: str = "date",
     ) -> list[Job]:
-        # Using simple ILIKE for fallback, but full-text search is configured via GIN indexes in postgres.
-        # For a truly robust FTS in SQLAlchemy 2.0 with Postgres:
-        # query_term = text("to_tsvector('english', jobs.title || ' ' || coalesce(jobs.description, '')) @@ plainto_tsquery('english', :q)")
+        stmt = self._build_search_query(query, category_slug)
         
+        if sort_by == "date":
+            stmt = stmt.order_by(Job.posted_date.desc())
+        elif sort_by == "salary":
+            stmt = stmt.order_by(Job.salary.desc().nulls_last())
+        elif sort_by == "title":
+            stmt = stmt.order_by(Job.title.asc())
+        else:
+            stmt = stmt.order_by(Job.posted_date.desc())
+        stmt = stmt.offset(skip).limit(limit)
+        
+        result = await self.db.execute(stmt)
+        # Unique is needed because of joins producing multiple rows per job
+        return list(result.scalars().unique().all())
+
+    async def count_search_jobs(
+        self,
+        query: str,
+        category_slug: str | None = None
+    ) -> int:
+        stmt = self._build_search_query(query, category_slug)
+        from sqlalchemy import func
+        count_query = select(func.count()).select_from(stmt.subquery())
+        result = await self.db.execute(count_query)
+        return result.scalar() or 0
+
+    def _build_search_query(self, query: str, category_slug: str | None = None):
         search_pattern = f"%{query}%"
         
         stmt = (
@@ -45,17 +69,4 @@ class SearchService:
             from app.models import Category
             stmt = stmt.join(Job.category).where(Category.slug == category_slug)
             
-        if sort_by == "date":
-            stmt = stmt.order_by(Job.posted_date.desc())
-        elif sort_by == "salary":
-            stmt = stmt.order_by(Job.salary.desc().nulls_last())
-        elif sort_by == "title":
-            stmt = stmt.order_by(Job.title.asc())
-        else:
-            stmt = stmt.order_by(Job.posted_date.desc())
-            
-        stmt = stmt.offset(skip).limit(limit)
-        
-        result = await self.db.execute(stmt)
-        # Unique is needed because of joins producing multiple rows per job
-        return list(result.scalars().unique().all())
+        return stmt

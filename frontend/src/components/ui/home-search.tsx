@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
+import { Search } from "lucide-react";
 
 export function HomeSearch() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -18,15 +18,12 @@ export function HomeSearch() {
   };
 
   return (
-    <form
-      onSubmit={handleSearch}
-      className="grow flex flex-col md:flex-row items-stretch gap-2"
-    >
-      <div className="grow flex items-center px-4 gap-3 bg-surface-container-low rounded-xl">
-        <span className="material-symbols-outlined text-outline">search</span>
+    <form onSubmit={handleSearch} className="grow flex flex-col sm:flex-row items-stretch gap-1.5">
+      <div className="grow flex items-center px-4 gap-3 bg-surface-container rounded-xl">
+        <Search size={17} className="text-outline shrink-0" />
         <input
-          className="w-full bg-transparent border-none focus:ring-0 text-on-surface font-sans py-4 outline-none placeholder:text-outline"
-          placeholder="Search roles, tech, or companies..."
+          className="w-full bg-transparent border-none focus:ring-0 text-on-surface font-sans py-3.5 outline-none placeholder:text-on-surface-variant/60 text-sm"
+          placeholder="Search roles, tech, or companies…"
           type="text"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
@@ -34,9 +31,9 @@ export function HomeSearch() {
       </div>
       <button
         type="submit"
-        className="bg-primary text-on-primary px-8 py-4 rounded-xl font-sans font-bold hover:opacity-90 active:scale-95 transition-all flex items-center justify-center gap-2"
+        className="bg-primary text-on-primary px-7 py-3.5 rounded-xl font-sans font-semibold text-sm hover:opacity-90 active:scale-95 transition-all"
       >
-        Find My Next Role
+        Search Jobs
       </button>
     </form>
   );

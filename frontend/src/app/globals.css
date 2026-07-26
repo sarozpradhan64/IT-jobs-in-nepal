@@ -1,114 +1,97 @@
-@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200');
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
 @import "tailwindcss";
 
+/* ─────────────────────────────────────────────
+   Design tokens
+   bg:       #1e293b  (slate-800)  — page canvas
+   card:     #263045  — card bg
+   border:   #344058  — subtle border
+   primary:  #8b5cf6  — violet-500
+   secondary:#fec76f  — amber accent
+   text:     #f1f5f9  — primary text
+   muted:    #94a3b8  — secondary text
+──────────────────────────────────────────────── */
+
 @theme {
-  --color-surface: #0b1326;
-  --color-surface-dim: #0b1326;
-  --color-surface-bright: #31394d;
-  --color-surface-container-lowest: #060e20;
-  --color-surface-container-low: #131b2e;
-  --color-surface-container: #171f33;
-  --color-surface-container-high: #222a3d;
-  --color-surface-container-highest: #2d3449;
+  --color-surface:                  #1e293b;
+  --color-surface-dim:              #161e2e;
+  --color-surface-bright:           #2d3b52;
+  --color-surface-container-lowest: #0f172a;
+  --color-surface-container-low:    #1e293b;
+  --color-surface-container:        #263045;
+  --color-surface-container-high:   #2d3b52;
+  --color-surface-container-highest:#344058;
 
-  --color-on-surface: #dae2fd;
-  --color-on-surface-variant: #c2c6d6;
-  --color-inverse-surface: #dae2fd;
-  --color-inverse-on-surface: #283044;
+  --color-on-surface:         #f1f5f9;
+  --color-on-surface-variant: #94a3b8;
 
-  --color-outline: #8c909f;
-  --color-outline-variant: #424754;
+  --color-outline:         #475569;
+  --color-outline-variant: #344058;
 
-  --color-primary: #adc6ff;
-  --color-on-primary: #002e6a;
-  --color-primary-container: #4d8eff;
-  --color-on-primary-container: #00285d;
-  --color-inverse-primary: #005ac2;
+  --color-primary:           #8b5cf6;
+  --color-on-primary:        #ffffff;
+  --color-primary-container: #6d28d9;
+  --color-on-primary-container: #ede9fe;
 
-  --color-secondary: #b7c8e1;
-  --color-on-secondary: #213145;
-  --color-secondary-container: #3a4a5f;
-  --color-on-secondary-container: #a9bad3;
+  --color-secondary:           #fec76f;
+  --color-on-secondary:        #1c1000;
+  --color-secondary-container: #fde68a;
+  --color-on-secondary-container: #713f12;
 
-  --color-error: #ffb4ab;
-  --color-on-error: #690005;
-  --color-error-container: #93000a;
+  --color-error:   #f87171;
+  --color-on-error: #450a0a;
 
   --font-sans: "Geist", sans-serif;
   --font-mono: "JetBrains Mono", monospace;
 
-  --spacing-base: 4px;
   --spacing-xs: 8px;
   --spacing-sm: 16px;
   --spacing-md: 24px;
   --spacing-lg: 48px;
   --spacing-xl: 80px;
-  --spacing-gutter: 24px;
-  --spacing-margin-mobile: 16px;
-
-  --radius-sm: 0.25rem;
-  --radius-md: 0.75rem;
-  --radius-lg: 1rem;
-  --radius-xl: 1.5rem;
 }
 
 @layer base {
-  body {
-    background-color: var(--color-surface);
-    color: var(--color-on-surface);
-    font-family: var(--font-sans);
+  html {
+    background-color: #1e293b;
+    scroll-behavior: smooth;
   }
 
-  /* Ensure Material Symbols render as icons, not text */
-  .material-symbols-outlined {
-    font-family: 'Material Symbols Outlined';
-    font-weight: normal;
-    font-style: normal;
-    font-size: 24px;
-    line-height: 1;
-    letter-spacing: normal;
-    text-transform: none;
-    display: inline-block;
-    white-space: nowrap;
-    word-wrap: normal;
-    direction: ltr;
-    -webkit-font-feature-settings: 'liga';
-    font-feature-settings: 'liga';
+  body {
+    background-color: #1e293b;
+    color: #f1f5f9;
+    font-family: "Geist", sans-serif;
     -webkit-font-smoothing: antialiased;
-    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  }
+
+  * {
+    box-sizing: border-box;
   }
 }
 
 @layer components {
+  /* Frosted glass — used for search bar overlay */
   .glass-panel {
-    background: rgba(15, 23, 42, 0.8);
+    background: rgba(22, 30, 46, 0.85);
     backdrop-filter: blur(20px);
-    border: 1px solid rgba(30, 41, 59, 0.5);
-  }
-  .hero-gradient {
-    background: radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(52, 64, 88, 0.8);
   }
 
-  /* Custom scrollbar for filter sidebar */
-  .custom-scrollbar::-webkit-scrollbar {
-    width: 4px;
-  }
-  .custom-scrollbar::-webkit-scrollbar-track {
-    background: transparent;
-  }
+  /* Custom scrollbar */
+  .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+  .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: var(--color-outline-variant);
+    background: #344058;
     border-radius: 4px;
   }
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: var(--color-outline);
+    background: #475569;
   }
 }
 
 @layer utilities {
-  /* Slow pulse animation for the "live" dot badge on job cards */
   .animate-pulse-slow {
     animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }

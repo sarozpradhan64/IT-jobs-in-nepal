@@ -51,7 +51,7 @@ function BadgePill({
   value: string;
 }) {
   return (
-    <div className="flex-1 min-w-[130px] bg-surface-container rounded-xl p-4">
+    <div className="flex-1 min-w-[120px] bg-surface-container rounded-xl p-3">
       <div className="flex items-center gap-2 mb-1">
         <div className="text-primary text-sm flex items-center justify-center">
           {icon}
@@ -60,7 +60,7 @@ function BadgePill({
           {label}
         </p>
       </div>
-      <p className="font-sans font-semibold capitalize">{value}</p>
+      <p className="font-sans font-semibold capitalize text-sm">{value}</p>
     </div>
   );
 }
@@ -114,7 +114,7 @@ export default async function JobDetailsPage({
         </Link>
 
         {/* ── Job Header Card ──────────────────────────── */}
-        <div className="relative overflow-hidden bg-surface-container-low border border-outline-variant/20 rounded-2xl p-lg mb-xl">
+        <div className="relative overflow-hidden bg-surface-container-low border border-outline-variant/20 rounded-2xl p-6 mb-8">
           <div className="pointer-events-none absolute -top-12 right-0 w-72 h-72 bg-primary/5 rounded-full blur-3xl" />
 
           <div className="relative z-10 flex flex-col md:flex-row md:items-start justify-between gap-lg">
@@ -125,7 +125,7 @@ export default async function JobDetailsPage({
                   <img
                     src={job.company.logo_url}
                     alt={job.company.name}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-contain p-2"
                   />
                 ) : (
                   <span>{companyInitials}</span>
@@ -167,14 +167,14 @@ export default async function JobDetailsPage({
                 href={job.apply_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="bg-primary text-on-primary px-8 py-3 rounded-xl font-sans font-bold hover:opacity-90 active:scale-95 transition-all text-center flex items-center justify-center gap-2"
+                className="bg-primary text-on-primary px-6 py-2.5 rounded-xl font-sans font-bold hover:opacity-90 active:scale-95 transition-all text-center flex items-center justify-center gap-2 text-sm"
               >
                 Apply Now
                 <ExternalLink className="text-sm" size={16} />
               </a>
               <Link
                 href={`/companies/${companySlug}`}
-                className="border border-outline-variant/50 text-on-surface px-8 py-3 rounded-xl font-sans font-medium hover:bg-surface-variant transition-colors flex items-center justify-center gap-2"
+                className="border border-outline-variant/50 text-on-surface px-6 py-2.5 rounded-xl font-sans font-medium hover:bg-surface-variant transition-colors flex items-center justify-center gap-2 text-sm"
               >
                 <Building2 className="text-sm" size={16} />
                 View Company
@@ -183,7 +183,7 @@ export default async function JobDetailsPage({
           </div>
 
           {/* Meta Badges */}
-          <div className="relative z-10 border-t border-outline-variant/20 mt-lg pt-lg flex flex-wrap gap-3">
+          <div className="relative z-10 border-t border-outline-variant/20 mt-6 pt-6 flex flex-wrap gap-3">
             <BadgePill
               icon={<Briefcase size={16} />}
               label="Employment Type"
@@ -213,16 +213,16 @@ export default async function JobDetailsPage({
           <main className="flex-1 min-w-0 space-y-xl">
             {/* Skills */}
             {job.skills && job.skills.length > 0 && (
-              <section className="bg-surface-container-low border border-outline-variant/20 rounded-2xl p-lg">
+              <section className="bg-surface-container-low border border-outline-variant/20 rounded-2xl p-6">
                 <h2 className="font-sans text-xl font-bold mb-4 flex items-center gap-2">
-                  <Code2 className="text-primary" size={24} />
+                  <Code2 className="text-primary" size={20} />
                   Tech Stack & Skills
                 </h2>
                 <div className="flex flex-wrap gap-2">
                   {job.skills.map((skill: { id: number; name: string }) => (
                     <span
                       key={skill.id}
-                      className="px-4 py-2 bg-primary/10 text-primary rounded-full font-mono text-sm border border-primary/20 hover:bg-primary/20 transition-colors cursor-default"
+                      className="px-3 py-1.5 bg-primary/10 text-primary rounded-full font-mono text-xs border border-primary/20 hover:bg-primary/20 transition-colors cursor-default"
                     >
                       {skill.name}
                     </span>
@@ -232,9 +232,9 @@ export default async function JobDetailsPage({
             )}
 
             {/* Description */}
-            <section className="bg-surface-container-low border border-outline-variant/20 rounded-2xl p-lg">
+            <section className="bg-surface-container-low border border-outline-variant/20 rounded-2xl p-6">
               <h2 className="font-sans text-xl font-bold mb-4 flex items-center gap-2">
-                <FileText className="text-primary" size={24} />
+                <FileText className="text-primary" size={20} />
                 Job Description
               </h2>
               <div className="font-sans text-sm text-on-surface-variant leading-relaxed space-y-3">
@@ -255,9 +255,9 @@ export default async function JobDetailsPage({
 
             {/* Requirements */}
             {job.requirements && (
-              <section className="bg-surface-container-low border border-outline-variant/20 rounded-2xl p-lg">
+              <section className="bg-surface-container-low border border-outline-variant/20 rounded-2xl p-6">
                 <h2 className="font-sans text-xl font-bold mb-4 flex items-center gap-2">
-                  <ListChecks className="text-primary" size={24} />
+                  <ListChecks className="text-primary" size={20} />
                   Requirements
                 </h2>
                 <div className="font-sans text-sm text-on-surface-variant leading-relaxed space-y-3">
@@ -276,7 +276,7 @@ export default async function JobDetailsPage({
             )}
 
             {/* Apply CTA */}
-            <div className="bg-gradient-to-r from-primary/10 to-secondary/10 border border-primary/20 rounded-2xl p-lg flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="bg-primary/5 border border-primary/20 rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
               <div>
                 <h3 className="font-sans text-lg font-bold mb-1">
                   Ready to apply?
@@ -290,7 +290,7 @@ export default async function JobDetailsPage({
                 href={job.apply_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="shrink-0 bg-primary text-on-primary px-8 py-3 rounded-xl font-sans font-bold hover:opacity-90 active:scale-95 transition-all flex items-center gap-2"
+                className="shrink-0 bg-primary text-on-primary px-6 py-2.5 rounded-xl font-sans font-bold hover:opacity-90 active:scale-95 transition-all flex items-center gap-2 text-sm"
               >
                 Apply Now
                 <ExternalLink className="text-sm" size={16} />
@@ -302,18 +302,18 @@ export default async function JobDetailsPage({
           <aside className="lg:w-72 shrink-0">
             <div className="sticky top-24 space-y-md">
               {/* Company Card */}
-              <div className="bg-surface-container-low border border-outline-variant/20 rounded-2xl p-lg">
+              <div className="bg-surface-container-low border border-outline-variant/20 rounded-2xl p-6">
                 <h3 className="font-sans text-lg font-bold mb-4">
                   About the Company
                 </h3>
 
                 <div className="flex items-center gap-4 mb-4">
-                  <div className="w-12 h-12 shrink-0 rounded-xl bg-surface flex items-center justify-center text-primary font-bold border border-outline-variant/30 overflow-hidden">
+                  <div className="w-12 h-12 shrink-0 rounded-xl bg-white flex items-center justify-center text-violet-700 font-bold border border-outline-variant/30 overflow-hidden">
                     {job.company.logo_url ? (
                       <img
                         src={job.company.logo_url}
                         alt={job.company.name}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-contain p-1.5"
                       />
                     ) : (
                       <span>{companyInitials}</span>
@@ -342,7 +342,7 @@ export default async function JobDetailsPage({
                       href={job.company.website}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-2 text-sm font-sans text-on-surface-variant hover:text-primary transition-colors"
+                      className="flex items-center gap-2 text-sm font-sans text-on-surface-variant hover:text-secondary transition-colors"
                     >
                       <Globe className="text-sm" size={16} />
                       {job.company.website
@@ -355,7 +355,7 @@ export default async function JobDetailsPage({
 
               {/* Related Jobs */}
               {relatedJobs.length > 0 && (
-                <div className="bg-surface-container-low border border-outline-variant/20 rounded-2xl p-lg">
+                <div className="bg-surface-container-low border border-outline-variant/20 rounded-2xl p-6">
                   <h3 className="font-sans text-lg font-bold mb-4">
                     More from {job.company.name}
                   </h3>
@@ -364,9 +364,9 @@ export default async function JobDetailsPage({
                       <Link
                         key={related.id}
                         href={`/jobs/${related.slug}`}
-                        className="block group p-3 rounded-xl hover:bg-surface-container-high transition-colors border border-transparent hover:border-outline-variant/20"
+                        className="block group p-3 rounded-xl hover:bg-surface-container-high transition-colors border border-transparent hover:border-secondary/60"
                       >
-                        <p className="font-sans text-sm font-semibold group-hover:text-primary transition-colors line-clamp-1">
+                        <p className="font-sans text-sm font-semibold group-hover:text-secondary transition-colors line-clamp-1">
                           {related.title}
                         </p>
                         <p className="font-mono text-xs text-on-surface-variant mt-1 flex items-center gap-1">

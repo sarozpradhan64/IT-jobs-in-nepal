@@ -59,6 +59,50 @@ class JobRepository:
         category_slug: str | None = None,
         sort_by: str | None = "date"
     ) -> list[Job]:
+        query = self._build_active_jobs_query(q, company_id, location, employment_type, experience_level, remote_status, skill_name, category_slug)
+        
+        if sort_by == "date":
+            query = query.order_by(Job.posted_date.desc())
+        elif sort_by == "salary":
+            query = query.order_by(Job.salary.desc().nulls_last())
+        elif sort_by == "title":
+            query = query.order_by(Job.title.asc())
+        else:
+            query = query.order_by(Job.posted_date.desc())
+            
+        query = query.offset(skip).limit(limit)
+        result = await self.db.execute(query)
+        return list(result.scalars().unique().all())
+
+    async def count_active_jobs(
+        self, 
+        q: str | None = None,
+        company_id: int | None = None,
+        location: str | None = None,
+        employment_type: str | None = None,
+        experience_level: str | None = None,
+        remote_status: str | None = None,
+        skill_name: str | None = None,
+        category_slug: str | None = None
+    ) -> int:
+        query = self._build_active_jobs_query(q, company_id, location, employment_type, experience_level, remote_status, skill_name, category_slug)
+        # Convert to count query
+        from sqlalchemy import func
+        count_query = select(func.count()).select_from(query.subquery())
+        result = await self.db.execute(count_query)
+        return result.scalar() or 0
+
+    def _build_active_jobs_query(
+        self,
+        q: str | None = None,
+        company_id: int | None = None,
+        location: str | None = None,
+        employment_type: str | None = None,
+        experience_level: str | None = None,
+        remote_status: str | None = None,
+        skill_name: str | None = None,
+        category_slug: str | None = None
+    ):
         from sqlalchemy import or_
         query = select(Job).options(selectinload(Job.company), selectinload(Job.skills), selectinload(Job.source), selectinload(Job.category)).where(Job.is_active == True)
         
@@ -105,18 +149,7 @@ class JobRepository:
             from app.models import Category
             query = query.join(Job.category).where(Category.slug == category_slug)
             
-        if sort_by == "date":
-            query = query.order_by(Job.posted_date.desc())
-        elif sort_by == "salary":
-            query = query.order_by(Job.salary.desc().nulls_last())
-        elif sort_by == "title":
-            query = query.order_by(Job.title.asc())
-        else:
-            query = query.order_by(Job.posted_date.desc())
-            
-        query = query.offset(skip).limit(limit)
-        result = await self.db.execute(query)
-        return list(result.scalars().unique().all())
+        return query
 
     async def create(self, obj_in: JobCreate, company_id: int, source_id: int | None, skills_list: list[Skill], category_id: int | None = None) -> Job:
         db_obj = Job(
