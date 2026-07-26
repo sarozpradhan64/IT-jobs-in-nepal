@@ -9,10 +9,23 @@ async function getStats() {
       `${process.env.NEXT_PUBLIC_API_URL}/api/stats`,
       { next: { revalidate: 60 } },
     );
-    if (!res.ok) return { total_jobs: "300+", total_companies: "50+", portals_integrated: "10+" };
+    if (!res.ok) return { total_jobs: 0, total_companies: 0, portals_integrated: 0 };
     return await res.json();
   } catch {
-    return { total_jobs: "300+", total_companies: "50+", portals_integrated: "10+" };
+    return { total_jobs: 0, total_companies: 0, portals_integrated: 0 };
+  }
+}
+
+async function getRoleStats(): Promise<Record<string, number>> {
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/stats/roles`,
+      { next: { revalidate: 60 } },
+    );
+    if (!res.ok) return {};
+    return await res.json();
+  } catch {
+    return {};
   }
 }
 
@@ -37,8 +50,11 @@ const ROLE_CARDS = [
 ];
 
 export default async function HomePage() {
-  const stats = await getStats();
-  const latestJobs = await getLatestJobs();
+  const [stats, latestJobs, roleCounts] = await Promise.all([
+    getStats(),
+    getLatestJobs(),
+    getRoleStats(),
+  ]);
 
   return (
     <>
@@ -66,8 +82,8 @@ export default async function HomePage() {
           {/* Stats */}
           <div className="flex flex-wrap justify-center gap-3">
             {[
-              { icon: Briefcase,  label: `${stats.total_jobs} Active Jobs` },
-              { icon: Terminal,   label: `${stats.total_companies} Career Pages` },
+              { icon: Briefcase,  label: `${stats.total_jobs.toLocaleString()} Active Jobs` },
+              { icon: Terminal,   label: `${stats.total_companies.toLocaleString()} Career Pages` },
               { icon: Network,    label: `${stats.portals_integrated} Portals` },
             ].map(({ icon: Icon, label }) => (
               <div
@@ -107,7 +123,9 @@ export default async function HomePage() {
                 </div>
                 <Icon size={28} className="text-primary mb-5 block transition-colors group-hover:text-secondary" />
                 <h3 className="font-sans text-lg font-bold text-on-surface mb-1 transition-colors group-hover:text-secondary">{label}</h3>
-                <p className="font-mono text-xs text-on-surface-variant uppercase tracking-wider">Active Positions</p>
+                <p className="font-mono text-xs text-on-surface-variant uppercase tracking-wider">
+                  {roleCounts[href.split("=")[1]] ?? 0} Active Positions
+                </p>
               </Link>
             ))}
           </div>
