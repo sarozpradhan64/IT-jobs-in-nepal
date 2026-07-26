@@ -125,7 +125,7 @@ export default async function JobDetailsPage({
                   <img
                     src={job.company.logo_url}
                     alt={job.company.name}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-contain p-2"
                   />
                 ) : (
                   <span>{companyInitials}</span>
@@ -276,7 +276,7 @@ export default async function JobDetailsPage({
             )}
 
             {/* Apply CTA */}
-            <div className="bg-gradient-to-r from-primary/10 to-secondary/10 border border-primary/20 rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="bg-primary/5 border border-primary/20 rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
               <div>
                 <h3 className="font-sans text-lg font-bold mb-1">
                   Ready to apply?
@@ -308,12 +308,12 @@ export default async function JobDetailsPage({
                 </h3>
 
                 <div className="flex items-center gap-4 mb-4">
-                  <div className="w-12 h-12 shrink-0 rounded-xl bg-surface flex items-center justify-center text-primary font-bold border border-outline-variant/30 overflow-hidden">
+                  <div className="w-12 h-12 shrink-0 rounded-xl bg-white flex items-center justify-center text-violet-700 font-bold border border-outline-variant/30 overflow-hidden">
                     {job.company.logo_url ? (
                       <img
                         src={job.company.logo_url}
                         alt={job.company.name}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-contain p-1.5"
                       />
                     ) : (
                       <span>{companyInitials}</span>
@@ -342,7 +342,7 @@ export default async function JobDetailsPage({
                       href={job.company.website}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-2 text-sm font-sans text-on-surface-variant hover:text-primary transition-colors"
+                      className="flex items-center gap-2 text-sm font-sans text-on-surface-variant hover:text-secondary transition-colors"
                     >
                       <Globe className="text-sm" size={16} />
                       {job.company.website
@@ -364,9 +364,9 @@ export default async function JobDetailsPage({
                       <Link
                         key={related.id}
                         href={`/jobs/${related.slug}`}
-                        className="block group p-3 rounded-xl hover:bg-surface-container-high transition-colors border border-transparent hover:border-outline-variant/20"
+                        className="block group p-3 rounded-xl hover:bg-surface-container-high transition-colors border border-transparent hover:border-secondary/60"
                       >
-                        <p className="font-sans text-sm font-semibold group-hover:text-primary transition-colors line-clamp-1">
+                        <p className="font-sans text-sm font-semibold group-hover:text-secondary transition-colors line-clamp-1">
                           {related.title}
                         </p>
                         <p className="font-mono text-xs text-on-surface-variant mt-1 flex items-center gap-1">

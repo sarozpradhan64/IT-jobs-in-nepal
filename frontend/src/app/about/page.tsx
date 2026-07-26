@@ -5,7 +5,7 @@ import { SiGithub } from "@icons-pack/react-simple-icons";
 
 export default function AboutPage() {
   return (
-    <div className="relative min-h-screen bg-surface selection:bg-primary-container selection:text-on-primary-container overflow-hidden">
+    <div className="relative min-h-screen bg-surface-container-lowest selection:bg-primary-container selection:text-on-primary-container overflow-hidden">
       <div className="relative z-10 max-w-5xl mx-auto px-md py-2xl md:py-[100px]">
         {/* Hero Section */}
         <div className="text-center mb-2xl md:mb-[100px] flex flex-col items-center">

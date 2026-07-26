@@ -70,17 +70,15 @@ export default async function CompaniesPage({
               <Link
                 href={`/companies/${company.slug}`}
                 key={company.id}
-                className="group bg-surface-container-low border border-outline-variant/20 rounded-xl p-md flex flex-col hover:bg-surface-container-high hover:border-primary/50 transition-all cursor-pointer relative overflow-hidden"
+                className="group bg-[#1b2536] border border-outline-variant/30 rounded-xl p-md flex flex-col hover:border-secondary/70 transition-colors cursor-pointer"
               >
-                <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-transparent via-primary/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-
                 <div className="flex items-center gap-md mb-4">
-                  <div className="w-16 h-16 bg-surface-variant rounded-lg flex items-center justify-center font-bold text-primary border border-outline-variant/30 overflow-hidden shrink-0">
+                  <div className="w-16 h-16 bg-surface-variant rounded-lg flex items-center justify-center font-bold text-violet-700 border border-outline-variant/30 overflow-hidden shrink-0 transition-colors group-hover:border-secondary/70">
                     {company.logo_url ? (
                       <img
                         src={company.logo_url}
                         alt={company.name}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-contain p-2"
                       />
                     ) : (
                       <span className="text-xl">
@@ -89,10 +87,10 @@ export default async function CompaniesPage({
                     )}
                   </div>
                   <div>
-                    <h3 className="font-sans text-xl font-bold group-hover:text-primary transition-colors line-clamp-1">
+                    <h3 className="font-sans text-xl font-bold group-hover:text-secondary transition-colors line-clamp-1">
                       {company.name}
                     </h3>
-                    <div className="font-mono text-xs text-primary flex items-center gap-1 mt-1">
+                    <div className="font-mono text-xs text-primary group-hover:text-secondary transition-colors flex items-center gap-1 mt-1">
                       View Profile{" "}
                       <ArrowRight size={14} />
                     </div>
@@ -108,7 +106,7 @@ export default async function CompaniesPage({
                   <span className="font-mono text-xs text-on-surface-variant">
                     Active Jobs
                   </span>
-                  <span className="bg-primary/10 text-primary px-3 py-1 rounded-full font-mono text-xs font-bold">
+                  <span className="bg-primary/10 text-primary px-3 py-1 rounded-full font-mono text-xs font-bold transition-colors group-hover:bg-secondary/15 group-hover:text-secondary">
                     View Roles
                   </span>
                 </div>

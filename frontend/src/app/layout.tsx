@@ -30,17 +30,16 @@ export default async function RootLayout({
       <head>
         <title>IT Jobs Nepal</title>
       </head>
-      <body className="min-h-screen flex flex-col selection:bg-primary-container selection:text-on-primary-container bg-surface text-on-surface pb-16 md:pb-0">
+      <body className="min-h-screen flex flex-col bg-surface-container-lowest text-on-surface pb-16 md:pb-0">
         {/* Top Navigation Bar */}
-        <header className="full-width top-0 sticky z-50 bg-surface/80 backdrop-blur-xl border-b border-outline-variant/20 shadow-sm transition-all duration-300">
+        <header className="full-width top-0 sticky z-50 bg-surface-container-lowest/95 backdrop-blur-xl border-b border-outline-variant">
           <div className="flex justify-between items-center h-16 px-md max-w-7xl mx-auto w-full">
             <div className="flex items-center gap-xs">
-              <Link
-                href="/"
-                className="flex items-center gap-3"
-              >
-                <Image src="/logo.png" alt="IT Jobs Nepal Logo" width={32} height={32} className="rounded-md" />
-                <span className="font-sans text-2xl font-bold text-on-surface">IT Jobs Nepal</span>
+              <Link href="/" className="flex items-center gap-3">
+                <Image src="/logo.png" alt="IT Jobs Nepal Logo" width={32} height={32} className="rounded-lg" />
+                <span className="font-sans text-lg font-bold text-on-surface">
+                  IT<span className="text-primary">Jobs</span>Nepal
+                </span>
               </Link>
             </div>
             <Navigation />
@@ -49,15 +48,15 @@ export default async function RootLayout({
                 href="https://github.com/sarozpradhan64/IT-jobs-in-nepal"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hidden lg:flex items-center gap-2 bg-surface-container-high hover:bg-surface-container-highest border border-outline-variant/30 text-on-surface px-4 py-2 rounded-full font-mono text-sm transition-all"
+                className="hidden lg:flex items-center gap-2 bg-surface-container hover:bg-surface-container-high border border-outline-variant text-on-surface px-4 py-2 rounded-full font-mono text-sm transition-colors"
               >
                 <SiGithub size={16} />
                 Star on GitHub
                 {stars !== null && (
                   <>
-                    <span className="w-px h-4 bg-outline-variant/50 mx-1"></span>
-                    <span className="flex items-center gap-1 font-bold">
-                      <Star size={14} className="fill-current" /> {stars}
+                    <span className="w-px h-4 bg-outline-variant mx-1"></span>
+                    <span className="flex items-center gap-1 font-bold text-secondary">
+                      <Star size={13} className="fill-secondary stroke-secondary" /> {stars}
                     </span>
                   </>
                 )}

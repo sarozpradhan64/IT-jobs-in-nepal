@@ -6,37 +6,35 @@ import { HomeSearch } from "@/components/ui/home-search";
 async function getStats() {
   try {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL || "${process.env.NEXT_PUBLIC_API_URL}"}/api/stats`,
+      `${process.env.NEXT_PUBLIC_API_URL}/api/stats`,
       { next: { revalidate: 60 } },
     );
-    if (!res.ok)
-      return {
-        total_jobs: "300+",
-        total_companies: "50+",
-        portals_integrated: "10+",
-      };
+    if (!res.ok) return { total_jobs: "300+", total_companies: "50+", portals_integrated: "10+" };
     return await res.json();
-  } catch (error) {
-    return {
-      total_jobs: "300+",
-      total_companies: "50+",
-      portals_integrated: "10+",
-    };
+  } catch {
+    return { total_jobs: "300+", total_companies: "50+", portals_integrated: "10+" };
   }
 }
 
 async function getLatestJobs(): Promise<JobData[]> {
   try {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL || "${process.env.NEXT_PUBLIC_API_URL}"}/api/jobs?limit=10`,
+      `${process.env.NEXT_PUBLIC_API_URL}/api/jobs?limit=10`,
       { next: { revalidate: 60 } },
     );
     if (!res.ok) return [];
     return await res.json();
-  } catch (error) {
+  } catch {
     return [];
   }
 }
+
+const ROLE_CARDS = [
+  { href: "/jobs?category=frontend", label: "Frontend", icon: Code },
+  { href: "/jobs?category=backend", label: "Backend", icon: Database },
+  { href: "/jobs?category=devops", label: "DevOps", icon: Cloud },
+  { href: "/jobs?category=data-science", label: "Data Science", icon: BarChart },
+];
 
 export default async function HomePage() {
   const stats = await getStats();
@@ -44,161 +42,96 @@ export default async function HomePage() {
 
   return (
     <>
-      {/* Hero Section */}
-      <section className="relative overflow-hidden pt-xl pb-lg md:pt-32 md:pb-xl hero-gradient">
-        <div className="max-w-7xl mx-auto px-md text-center relative z-10">
-          <h1 className="font-sans text-5xl md:text-6xl font-bold mb-sm max-w-4xl mx-auto tracking-tight animate-fade-in">
+      {/* ── Hero ─────────────────────────────────────── */}
+      <section className="relative pt-24 pb-20 md:pt-36 md:pb-28 overflow-hidden">
+        <div className="relative z-10 max-w-5xl mx-auto px-6 text-center">
+
+          <h1 className="font-sans text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.1] mb-6 text-on-surface">
             Every IT Job in Nepal,{" "}
             <span className="text-primary">In One Place.</span>
           </h1>
-          <p className="font-sans text-lg text-on-surface-variant max-w-2xl mx-auto mb-lg">
-            Aggregating career pages, LinkedIn, and top portals for the Nepalese
-            tech ecosystem. Open-source and developer-first.
+
+          <p className="font-sans text-lg text-on-surface-variant max-w-2xl mx-auto mb-10 leading-relaxed">
+            Aggregating career pages, LinkedIn, and top portals for the Nepalese tech ecosystem.
+            Open-source &amp; developer-first.
           </p>
 
-          {/* Modern Search Bar */}
-          <div className="max-w-3xl mx-auto mb-lg">
-            <div className="glass-panel p-2 rounded-2xl flex flex-col md:flex-row items-stretch gap-2 shadow-2xl">
+          {/* Search */}
+          <div className="max-w-2xl mx-auto mb-10">
+            <div className="glass-panel p-1.5 rounded-2xl flex flex-col md:flex-row items-stretch gap-1.5">
               <HomeSearch />
             </div>
           </div>
 
-          {/* Source Stats */}
-          <div className="flex flex-wrap justify-center gap-md mt-lg">
-            <div className="flex items-center gap-2 bg-surface-container-high px-4 py-2 rounded-full border border-outline-variant/30">
-              <Terminal size={16} className="text-primary" />
-              <span className="font-mono text-xs font-medium uppercase tracking-wider">
-                {stats.total_companies} Career Pages Scraped
-              </span>
-            </div>
-            <div className="flex items-center gap-2 bg-surface-container-high px-4 py-2 rounded-full border border-outline-variant/30">
-              <Briefcase size={16} className="text-primary" />
-              <span className="font-mono text-xs font-medium uppercase tracking-wider">
-                {stats.total_jobs} Active Jobs
-              </span>
-            </div>
-            <div className="flex items-center gap-2 bg-surface-container-high px-4 py-2 rounded-full border border-outline-variant/30">
-              <Network size={16} className="text-primary" />
-              <span className="font-mono text-xs font-medium uppercase tracking-wider">
-                {stats.portals_integrated} Portals Integrated
-              </span>
-            </div>
+          {/* Stats */}
+          <div className="flex flex-wrap justify-center gap-3">
+            {[
+              { icon: Briefcase,  label: `${stats.total_jobs} Active Jobs` },
+              { icon: Terminal,   label: `${stats.total_companies} Career Pages` },
+              { icon: Network,    label: `${stats.portals_integrated} Portals` },
+            ].map(({ icon: Icon, label }) => (
+              <div
+                key={label}
+                className="flex items-center gap-2 bg-surface-container border border-outline-variant px-4 py-2 rounded-full text-on-surface-variant"
+              >
+                <Icon size={14} className="text-primary shrink-0" />
+                <span className="font-mono text-xs font-medium tracking-wide">{label}</span>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Browse by Role Grid */}
-      <section className="py-xl bg-surface border-t border-outline-variant/10">
-        <div className="max-w-7xl mx-auto px-md">
-          <div className="flex flex-col md:flex-row justify-between items-end mb-lg">
+      {/* ── Browse by Role ───────────────────────────── */}
+      <section className="py-16 border-t border-outline-variant">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-10 gap-4">
             <div>
-              <h2 className="font-sans text-3xl font-bold mb-2">
-                Browse by Role
-              </h2>
-              <p className="text-on-surface-variant font-sans text-base">
-                Optimized listings for specific engineering tracks.
-              </p>
+              <p className="font-mono text-xs text-secondary uppercase tracking-widest mb-2">Explore</p>
+              <h2 className="font-sans text-3xl font-bold text-on-surface">Browse by Role</h2>
             </div>
-            <Link
-              className="text-primary font-mono text-sm font-medium flex items-center gap-1 group mt-4 md:mt-0"
-              href="/jobs"
-            >
-              View All{" "}
-              <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
+            <Link href="/jobs" className="flex items-center gap-1.5 text-primary font-mono text-sm hover:opacity-70 transition-opacity group">
+              View All <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-md">
-            {/* Frontend */}
-            <Link
-              href="/jobs?category=frontend"
-              className="group relative overflow-hidden rounded-xl border border-outline-variant/30 bg-surface-container-low p-md hover:border-primary/50 transition-all cursor-pointer"
-            >
-              <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity text-on-surface">
-                <Code size={128} />
-              </div>
-              <Code size={40} className="text-primary mb-md block" />
-              <h3 className="font-sans text-2xl font-bold mb-1">Frontend</h3>
-              <p className="font-mono text-xs text-on-surface-variant uppercase tracking-wider">
-                Active Positions
-              </p>
-            </Link>
-
-            {/* Backend */}
-            <Link
-              href="/jobs?category=backend"
-              className="group relative overflow-hidden rounded-xl border border-outline-variant/30 bg-surface-container-low p-md hover:border-primary/50 transition-all cursor-pointer"
-            >
-              <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity text-on-surface">
-                <Database size={128} />
-              </div>
-              <Database size={40} className="text-primary mb-md block" />
-              <h3 className="font-sans text-2xl font-bold mb-1">Backend</h3>
-              <p className="font-mono text-xs text-on-surface-variant uppercase tracking-wider">
-                Active Positions
-              </p>
-            </Link>
-
-            {/* DevOps */}
-            <Link
-              href="/jobs?category=devops"
-              className="group relative overflow-hidden rounded-xl border border-outline-variant/30 bg-surface-container-low p-md hover:border-primary/50 transition-all cursor-pointer"
-            >
-              <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity text-on-surface">
-                <Cloud size={128} />
-              </div>
-              <Cloud size={40} className="text-primary mb-md block" />
-              <h3 className="font-sans text-2xl font-bold mb-1">DevOps</h3>
-              <p className="font-mono text-xs text-on-surface-variant uppercase tracking-wider">
-                Active Positions
-              </p>
-            </Link>
-
-            {/* Data Science */}
-            <Link
-              href="/jobs?category=data-science"
-              className="group relative overflow-hidden rounded-xl border border-outline-variant/30 bg-surface-container-low p-md hover:border-primary/50 transition-all cursor-pointer"
-            >
-              <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity text-on-surface">
-                <BarChart size={128} />
-              </div>
-              <BarChart size={40} className="text-primary mb-md block" />
-              <h3 className="font-sans text-2xl font-bold mb-1">
-                Data Science
-              </h3>
-              <p className="font-mono text-xs text-on-surface-variant uppercase tracking-wider">
-                Active Positions
-              </p>
-            </Link>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            {ROLE_CARDS.map(({ href, label, icon: Icon }) => (
+              <Link
+                key={label}
+                href={href}
+                className="group relative overflow-hidden rounded-xl border border-outline-variant bg-surface-container p-6 hover:border-secondary/70 hover:bg-surface-container-high transition-all duration-200"
+              >
+                <div className="absolute -right-4 -bottom-4 opacity-[0.06] group-hover:opacity-[0.12] transition-opacity">
+                  <Icon size={96} className="text-on-surface" />
+                </div>
+                <Icon size={28} className="text-primary mb-5 block transition-colors group-hover:text-secondary" />
+                <h3 className="font-sans text-lg font-bold text-on-surface mb-1 transition-colors group-hover:text-secondary">{label}</h3>
+                <p className="font-mono text-xs text-on-surface-variant uppercase tracking-wider">Active Positions</p>
+              </Link>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Latest Jobs */}
-      <section className="py-xl bg-surface border-t border-outline-variant/10">
-        <div className="max-w-7xl mx-auto px-md">
-          <div className="flex flex-col md:flex-row justify-between items-end mb-lg">
+      {/* ── Latest Jobs ──────────────────────────────── */}
+      <section className="py-16 border-t border-outline-variant">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-10 gap-4">
             <div>
-              <h2 className="font-sans text-3xl font-bold mb-2">Latest Jobs</h2>
-              <p className="text-on-surface-variant font-sans text-base">
-                Freshly added positions from our curated sources.
-              </p>
+              <p className="font-mono text-xs text-secondary uppercase tracking-widest mb-2">Fresh</p>
+              <h2 className="font-sans text-3xl font-bold text-on-surface">Latest Jobs</h2>
             </div>
-            <Link
-              className="text-primary font-mono text-sm font-medium flex items-center gap-1 group mt-4 md:mt-0"
-              href="/jobs"
-            >
-              View All Jobs{" "}
-              <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
+            <Link href="/jobs" className="flex items-center gap-1.5 text-primary font-mono text-sm hover:opacity-70 transition-opacity group">
+              View All Jobs <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
             </Link>
           </div>
-          <div className="space-y-4">
+
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
             {latestJobs.length > 0 ? (
               latestJobs.map((job) => <JobCard key={job.id} job={job} />)
             ) : (
-              <p className="text-on-surface-variant text-center py-4">
-                No jobs available right now.
-              </p>
+              <p className="text-on-surface-variant text-center py-12 font-sans md:col-span-2 lg:col-span-3">No jobs available right now.</p>
             )}
           </div>
         </div>
