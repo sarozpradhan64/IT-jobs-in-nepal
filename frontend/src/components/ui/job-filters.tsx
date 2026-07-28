@@ -41,6 +41,7 @@ export function JobFilters({
     if (!mounted.current) { mounted.current = true; return; }
     const qs = buildQuery("q", debouncedSearchTerm);
     router.push(pathname + (qs ? "?" + qs : ""));
+    window.scrollTo({ top: 0, behavior: "smooth" });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedSearchTerm]);
 
@@ -51,6 +52,7 @@ export function JobFilters({
     else { list = list.filter((v) => v !== value); }
     const qs = buildQuery(name, list.join(","));
     router.push(pathname + (qs ? "?" + qs : ""));
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const isChecked = (name: string, value: string) =>
@@ -120,7 +122,7 @@ export function JobFilters({
       <div>
         <label className={sectionLabelCls}>Work Setup</label>
         <div className="space-y-0.5">
-          {["Onsite", "Hybrid", "Remote"].map((setup) => (
+          {(["Onsite", "Hybrid", "Remote"] as const).map((setup) => (
             <label key={setup} className={rowCls}>
               <div className="relative shrink-0">
                 <input
@@ -129,13 +131,64 @@ export function JobFilters({
                   onChange={(e) => handleCheckbox("remote_status", setup.toLowerCase(), e.target.checked)}
                   className={checkboxCls}
                 />
-                <Check
-                  size={10}
-                  strokeWidth={3}
-                  className="absolute inset-0 m-auto text-white pointer-events-none opacity-0 peer-checked:opacity-100 transition-opacity"
-                />
+                <Check size={10} strokeWidth={3} className="absolute inset-0 m-auto text-white pointer-events-none opacity-0 peer-checked:opacity-100 transition-opacity" />
               </div>
               <span className={labelCls}>{setup}</span>
+            </label>
+          ))}
+        </div>
+      </div>
+
+      <div className={dividerCls} />
+
+      {/* Employment Type */}
+      <div>
+        <label className={sectionLabelCls}>Employment Type</label>
+        <div className="space-y-0.5">
+          {([
+            ["full-time", "Full-time"],
+            ["part-time", "Part-time"],
+            ["contract", "Contract"],
+            ["internship", "Internship"],
+          ] as const).map(([value, label]) => (
+            <label key={value} className={rowCls}>
+              <div className="relative shrink-0">
+                <input
+                  type="checkbox"
+                  checked={isChecked("employment_type", value)}
+                  onChange={(e) => handleCheckbox("employment_type", value, e.target.checked)}
+                  className={checkboxCls}
+                />
+                <Check size={10} strokeWidth={3} className="absolute inset-0 m-auto text-white pointer-events-none opacity-0 peer-checked:opacity-100 transition-opacity" />
+              </div>
+              <span className={labelCls}>{label}</span>
+            </label>
+          ))}
+        </div>
+      </div>
+
+      <div className={dividerCls} />
+
+      {/* Experience Level */}
+      <div>
+        <label className={sectionLabelCls}>Experience Level</label>
+        <div className="space-y-0.5">
+          {([
+            ["junior", "Junior"],
+            ["mid", "Mid-level"],
+            ["senior", "Senior"],
+          ] as const).map(([value, label]) => (
+            <label key={value} className={rowCls}>
+              <div className="relative shrink-0">
+                <input
+                  type="checkbox"
+                  checked={isChecked("experience_level", value)}
+                  onChange={(e) => handleCheckbox("experience_level", value, e.target.checked)}
+                  className={checkboxCls}
+                />
+                <Check size={10} strokeWidth={3} className="absolute inset-0 m-auto text-white pointer-events-none opacity-0 peer-checked:opacity-100 transition-opacity" />
+              </div>
+              <span className={labelCls}>{label}</span>
             </label>
           ))}
         </div>
