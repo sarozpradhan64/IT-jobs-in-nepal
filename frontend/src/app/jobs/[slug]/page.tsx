@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, MapPin, Clock, ExternalLink, Building2, Briefcase, BarChart, Globe, Banknote, Code2, FileText, ListChecks, CheckCircle2, ArrowRight } from "lucide-react";
+import { ArrowLeft, MapPin, Clock, ExternalLink, Building2, Briefcase, BarChart, Globe, Banknote, Code2, FileText, ListChecks, ArrowRight } from "lucide-react";
 import { JobData } from "@/components/ui/job-card";
+import { RichText } from "@/components/ui/rich-text";
 
 async function getJobDetails(slug: string): Promise<JobData | null> {
   try {
@@ -237,20 +238,13 @@ export default async function JobDetailsPage({
                 <FileText className="text-primary" size={20} />
                 Job Description
               </h2>
-              <div className="font-sans text-sm text-on-surface-variant leading-relaxed space-y-3">
-                {job.description ? (
-                  job.description
-                    .split("\n")
-                    .map((para: string, idx: number) =>
-                      para.trim() ? <p key={idx}>{para}</p> : null,
-                    )
-                ) : (
-                  <p>
-                    No description provided. Please visit the company's website
-                    for more details.
-                  </p>
-                )}
-              </div>
+              {job.description ? (
+                <RichText text={job.description} />
+              ) : (
+                <p className="font-sans text-sm text-on-surface-variant">
+                  No description provided. Please visit the company's website for more details.
+                </p>
+              )}
             </section>
 
             {/* Requirements */}
@@ -260,18 +254,7 @@ export default async function JobDetailsPage({
                   <ListChecks className="text-primary" size={20} />
                   Requirements
                 </h2>
-                <div className="font-sans text-sm text-on-surface-variant leading-relaxed space-y-3">
-                  {job.requirements
-                    .split("\n")
-                    .map((line: string, idx: number) =>
-                      line.trim() ? (
-                        <div key={idx} className="flex gap-2">
-                          <CheckCircle2 className="text-primary text-sm shrink-0 mt-0.5" size={16} />
-                          <p>{line}</p>
-                        </div>
-                      ) : null,
-                    )}
-                </div>
+                <RichText text={job.requirements} />
               </section>
             )}
 

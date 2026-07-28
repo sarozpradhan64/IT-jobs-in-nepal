@@ -22,6 +22,7 @@ async def list_jobs(
     remote_status: str | None = None,
     skill: str | None = None,
     category: str | None = None,
+    source: str | None = None,
     sort_by: str = Query("date", description="Sort by date, salary, or title"),
     db: AsyncSession = Depends(get_db)
 ):
@@ -35,7 +36,8 @@ async def list_jobs(
         experience_level=experience_level,
         remote_status=remote_status,
         skill_name=skill,
-        category_slug=category
+        category_slug=category,
+        source=source
     )
     response.headers["X-Total-Count"] = str(total_count)
     response.headers["Access-Control-Expose-Headers"] = "X-Total-Count"
@@ -51,6 +53,7 @@ async def list_jobs(
         remote_status=remote_status,
         skill_name=skill,
         category_slug=category,
+        source=source,
         sort_by=sort_by
     )
     return jobs

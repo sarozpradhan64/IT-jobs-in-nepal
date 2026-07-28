@@ -13,6 +13,9 @@ from app.schemas.job import JobCreate
 
 log = logging.getLogger(__name__)
 
+async def _empty_detail() -> dict:
+    return {}
+
 # Common direct paths to check – all probed concurrently
 CAREER_PATHS = [
     "/careers", "/jobs", "/openings", "/join-us", "/about/careers",
@@ -26,7 +29,7 @@ SKIP_DOMAINS = {"my.company", "example.com", "localhost", "yourdomain.com"}
 
 class SmartCareerScraper(BaseScraper):
     def __init__(self, company_name: str, base_url: str):
-        super().__init__(source_name=f"CareerPage:{company_name}", base_url=base_url)
+        super().__init__(source_name="career_page", base_url=base_url)
         self.company_name = company_name
         self.company_logo: Optional[str] = None
 
@@ -246,34 +249,40 @@ class SmartCareerScraper(BaseScraper):
         try:
             html = await self.fetch_html(url)
             soup = BeautifulSoup(html, "html.parser")
-            jobs = []
+            raw: List[tuple[str, str, str]] = []  # (title, link, location)
 
             if ats_type == "lever":
                 for posting in soup.select(".posting"):
                     title = posting.select_one("h5").get_text(strip=True) if posting.select_one("h5") else "Unknown"
                     link = posting.select_one("a.posting-title")["href"] if posting.select_one("a.posting-title") else url
                     location = posting.select_one(".sort-by-location").get_text(strip=True) if posting.select_one(".sort-by-location") else "Nepal"
-                    jobs.append(self._create_schema(title, link, location))
+                    raw.append((title, link, location))
 
             elif ats_type == "greenhouse":
                 for posting in soup.select(".opening"):
                     title = posting.select_one("a").get_text(strip=True) if posting.select_one("a") else "Unknown"
                     link = urljoin(url, posting.select_one("a")["href"]) if posting.select_one("a") else url
                     location = posting.select_one(".location").get_text(strip=True) if posting.select_one(".location") else "Nepal"
-                    jobs.append(self._create_schema(title, link, location))
+                    raw.append((title, link, location))
 
             elif ats_type == "workable":
                 for posting in soup.select("li[data-ui='job']"):
                     title = posting.select_one("h3").get_text(strip=True) if posting.select_one("h3") else "Unknown"
                     link = posting.select_one("a")["href"] if posting.select_one("a") else url
-                    jobs.append(self._create_schema(title, link, "Nepal"))
+                    raw.append((title, link, "Nepal"))
 
             elif ats_type == "bamboohr":
                 for posting in soup.select(".ResList-item"):
                     title = posting.select_one("a").get_text(strip=True) if posting.select_one("a") else "Unknown"
                     link = urljoin(url, posting.select_one("a")["href"]) if posting.select_one("a") else url
-                    jobs.append(self._create_schema(title, link, "Nepal"))
+                    raw.append((title, link, "Nepal"))
 
+            # Only fetch detail if the job link is a distinct page from the listing
+            details = await asyncio.gather(*[
+                self.fetch_job_detail(link) if link != url else _empty_detail()
+                for _, link, _ in raw
+            ])
+            jobs = [self._create_schema(t, l, loc, d) for (t, l, loc), d in zip(raw, details)]
             return self._filter_it_jobs(jobs)
         except Exception as e:
             log.error(f"[{self.company_name}] Error parsing ATS {ats_type}: {e}")
@@ -359,27 +368,36 @@ class SmartCareerScraper(BaseScraper):
                     if not re.search(r'(?i)[/?](job[_-]?id|opening|vacancy|position)[=/]', href):
                         continue
 
+                # Skip if the link resolves back to the career listing page itself
+                if full_url.rstrip("/") == career_url.rstrip("/"):
+                    continue
+
                 seen_urls.add(full_url)
                 job_links.append((text.strip(), full_url))
 
-            return [self._create_schema(title, link, "Nepal") for title, link in job_links]
+            details = await asyncio.gather(*[self.fetch_job_detail(link) for _, link in job_links])
+            jobs = [self._create_schema(title, link, "Nepal", detail) for (title, link), detail in zip(job_links, details)]
+            return self._filter_it_jobs(jobs)
 
         except Exception as e:
             log.error(f"[{self.company_name}] Error in Fallback Extractor: {e}")
             return []
 
-    def _create_schema(self, title: str, apply_url: str, location: str) -> JobCreate:
+    def _create_schema(self, title: str, apply_url: str, location: str, detail: dict | None = None) -> JobCreate:
         slug_base = re.sub(r"[^a-z0-9]+", "-", title.lower()).strip("-")
         company_slug = re.sub(r"[^a-z0-9]+", "-", self.company_name.lower()).strip("-")
         slug = f"{company_slug}-{slug_base}-{hash(apply_url) & 0xFFFF:04x}"
-
+        d = detail or {}
         return JobCreate(
             title=title,
             slug=slug,
             location=location,
-            employment_type="full-time",
-            remote_status="onsite",
-            experience_level="mid",
+            employment_type=d.get("employment_type") or "full-time",
+            remote_status=d.get("remote_status") or "onsite",
+            experience_level=d.get("experience_level") or "mid",
+            description=d.get("description"),
+            requirements=d.get("requirements"),
+            responsibilities=d.get("responsibilities"),
             apply_url=apply_url,
             source_name=self.source_name,
             company_name=self.company_name,
@@ -402,5 +420,5 @@ class SmartCareerScraper(BaseScraper):
         return []
     def parse(self, raw_data: List[Any]) -> List[Dict[str, Any]]:
         return []
-    def normalize(self, parsed_data: List[Dict[str, Any]]) -> List[JobCreate]:
+    async def normalize(self, parsed_data: List[Dict[str, Any]]) -> List[JobCreate]:
         return []

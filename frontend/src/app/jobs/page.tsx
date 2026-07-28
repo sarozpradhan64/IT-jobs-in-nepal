@@ -3,6 +3,7 @@ import Link from "next/link";
 import { JobCard, JobData } from "@/components/ui/job-card";
 import { JobFilters } from "@/components/ui/job-filters";
 import { JobSort } from "@/components/ui/job-sort";
+import { SourceFilter } from "@/components/ui/source-filter";
 import { Pagination } from "@/components/ui/pagination";
 import { SlidersHorizontal, SearchX } from "lucide-react";
 
@@ -16,6 +17,12 @@ async function getJobs(searchParams: {
     queryParams.append("category", searchParams.category as string);
   if (searchParams.remote_status)
     queryParams.append("remote_status", searchParams.remote_status as string);
+  if (searchParams.employment_type)
+    queryParams.append("employment_type", searchParams.employment_type as string);
+  if (searchParams.experience_level)
+    queryParams.append("experience_level", searchParams.experience_level as string);
+  if (searchParams.source)
+    queryParams.append("source", searchParams.source as string);
   if (searchParams.sort_by)
     queryParams.append("sort_by", searchParams.sort_by as string);
   const page = searchParams.page ? parseInt(searchParams.page as string, 10) : 1;
@@ -69,7 +76,9 @@ export default async function JobsPage({
   
   const currentPage = resolvedParams.page ? parseInt(resolvedParams.page as string, 10) : 1;
   const limit = 10;
-  
+
+  const activeFilterCount = ["q", "category", "remote_status", "employment_type", "experience_level", "source"]
+    .filter((k) => resolvedParams[k]).length;
 
   const totalPages = Math.max(1, Math.ceil(total / limit));
   const hasNextPage = currentPage < totalPages;
@@ -106,6 +115,16 @@ export default async function JobsPage({
               <h3 className="font-sans text-xs font-bold uppercase tracking-widest text-on-surface-variant flex items-center gap-2 mb-5">
                 <SlidersHorizontal size={13} className="text-primary" />
                 Filters
+                {activeFilterCount > 0 && (
+                  <span className="ml-auto flex items-center gap-1.5">
+                    <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold text-white">
+                      {activeFilterCount}
+                    </span>
+                    <Link href="/jobs" className="font-mono text-[10px] text-outline hover:text-primary transition-colors">
+                      Clear
+                    </Link>
+                  </span>
+                )}
               </h3>
               <React.Suspense
                 fallback={
@@ -126,9 +145,12 @@ export default async function JobsPage({
             {/* Toolbar */}
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-5 bg-surface-container border border-outline-variant rounded-xl px-4 py-3">
               <p className="font-mono text-xs text-on-surface-variant uppercase tracking-wider">
-                <span className="font-bold text-on-surface text-sm">{jobs.length}</span> active listings
+                <span className="font-bold text-on-surface text-sm">{total}</span> active listings
               </p>
               <div className="flex items-center gap-3">
+                <React.Suspense fallback={<div className="h-8 w-28 bg-surface-container-high rounded-lg animate-pulse" />}>
+                  <SourceFilter />
+                </React.Suspense>
                 <span className="font-mono text-xs text-on-surface-variant">Sort by:</span>
                 <React.Suspense fallback={<div className="h-8 w-28 bg-surface-container-high rounded-lg animate-pulse" />}>
                   <JobSort />

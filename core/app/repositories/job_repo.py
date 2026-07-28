@@ -57,9 +57,10 @@ class JobRepository:
         remote_status: str | None = None,
         skill_name: str | None = None,
         category_slug: str | None = None,
+        source: str | None = None,
         sort_by: str | None = "date"
     ) -> list[Job]:
-        query = self._build_active_jobs_query(q, company_id, location, employment_type, experience_level, remote_status, skill_name, category_slug)
+        query = self._build_active_jobs_query(q, company_id, location, employment_type, experience_level, remote_status, skill_name, category_slug, source)
         
         if sort_by == "date":
             query = query.order_by(Job.posted_date.desc())
@@ -83,9 +84,10 @@ class JobRepository:
         experience_level: str | None = None,
         remote_status: str | None = None,
         skill_name: str | None = None,
-        category_slug: str | None = None
+        category_slug: str | None = None,
+        source: str | None = None
     ) -> int:
-        query = self._build_active_jobs_query(q, company_id, location, employment_type, experience_level, remote_status, skill_name, category_slug)
+        query = self._build_active_jobs_query(q, company_id, location, employment_type, experience_level, remote_status, skill_name, category_slug, source)
         # Convert to count query
         from sqlalchemy import func
         count_query = select(func.count()).select_from(query.subquery())
@@ -101,7 +103,8 @@ class JobRepository:
         experience_level: str | None = None,
         remote_status: str | None = None,
         skill_name: str | None = None,
-        category_slug: str | None = None
+        category_slug: str | None = None,
+        source: str | None = None
     ):
         from sqlalchemy import or_
         query = select(Job).options(selectinload(Job.company), selectinload(Job.skills), selectinload(Job.source), selectinload(Job.category)).where(Job.is_active == True)
@@ -148,7 +151,13 @@ class JobRepository:
         if category_slug:
             from app.models import Category
             query = query.join(Job.category).where(Category.slug == category_slug)
-            
+
+        if source:
+            from app.models import ScraperSource
+            sources = [s.strip() for s in source.split(",")]
+            source_subq = select(ScraperSource.id).where(ScraperSource.name.in_(sources)).scalar_subquery()
+            query = query.where(Job.source_id.in_(source_subq))
+
         return query
 
     async def create(self, obj_in: JobCreate, company_id: int, source_id: int | None, skills_list: list[Skill], category_id: int | None = None) -> Job:

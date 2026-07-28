@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import re
 from typing import Any, Dict, List
@@ -153,28 +154,36 @@ class SmartPortalScraper(BaseScraper):
         log.info(f"[{self.source_name}] Parsed {len(jobs)} raw listings")
         return jobs
 
-    def normalize(self, parsed_data: List[Dict[str, Any]]) -> List[JobCreate]:
-        normalized: List[JobCreate] = []
+    async def normalize(self, parsed_data: List[Dict[str, Any]]) -> List[JobCreate]:
+        # Dedup first, then enrich with detail pages concurrently
         seen_urls: set[str] = set()
-
+        unique_items: List[Dict[str, Any]] = []
         for item in parsed_data:
-            apply_url = item.get("apply_url", "")
-            if not apply_url or apply_url in seen_urls:
-                continue
-            seen_urls.add(apply_url)
+            url = item.get("apply_url", "")
+            if url and url not in seen_urls:
+                seen_urls.add(url)
+                unique_items.append(item)
 
+        log.info(f"[{self.source_name}] {len(unique_items)} unique jobs — fetching detail pages")
+        details = await asyncio.gather(*[self.fetch_job_detail(item["apply_url"]) for item in unique_items])
+
+        normalized: List[JobCreate] = []
+        for item, detail in zip(unique_items, details):
+            apply_url = item["apply_url"]
             title = item.get("title", "Untitled")
             slug_base = re.sub(r"[^a-z0-9]+", "-", title.lower()).strip("-")
             slug = f"{self.source_name}-{slug_base}-{hash(apply_url) & 0xFFFF:04x}"
-
             normalized.append(
                 JobCreate(
                     title=title,
                     slug=slug,
                     location=item.get("location", "Nepal"),
-                    employment_type="full-time",
-                    remote_status="onsite",
-                    experience_level="mid",
+                    employment_type=detail.get("employment_type") or "full-time",
+                    remote_status=detail.get("remote_status") or "onsite",
+                    experience_level=detail.get("experience_level") or "mid",
+                    description=detail.get("description"),
+                    requirements=detail.get("requirements"),
+                    responsibilities=detail.get("responsibilities"),
                     apply_url=apply_url,
                     source_name=self.source_name,
                     company_name=item.get("company", "Unknown"),
@@ -183,6 +192,8 @@ class SmartPortalScraper(BaseScraper):
                     skills=[],
                 )
             )
-
-        log.info(f"[{self.source_name}] {len(normalized)} unique jobs after dedup")
         return normalized
+
+    async def _fetch_all_details(self, items: List[Dict[str, Any]]) -> List[Dict]:
+        tasks = [self.fetch_job_detail(item["apply_url"]) for item in items]
+        return await asyncio.gather(*tasks)

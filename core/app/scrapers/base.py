@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any, List, Dict
+from typing import Any, List, Dict, Optional
 from app.schemas.job import JobCreate
 from app.repositories.job_repo import JobRepository
 from app.repositories.company_repo import CompanyRepository
@@ -7,6 +7,88 @@ from app.services.category_classifier import CategoryClassifier
 from sqlalchemy.ext.asyncio import AsyncSession
 import httpx
 import asyncio
+import re
+from bs4 import BeautifulSoup
+
+# Section heading patterns for description / requirements / responsibilities
+_SECTION_RE = re.compile(
+    r'(?i)(job\s+description|about\s+the\s+(role|job|position)|overview|summary|'
+    r'requirements?|qualifications?|what\s+you.?ll\s+(need|bring)|'
+    r'responsibilities|what\s+you.?ll\s+do|key\s+responsibilities|duties)',
+)
+
+
+def _clean_soup(soup: BeautifulSoup) -> None:
+    """Remove navigation/chrome noise in-place."""
+    for tag in soup.select("nav, header, footer, script, style"):
+        tag.decompose()
+
+
+def _extract_sections(soup: BeautifulSoup) -> tuple[Optional[str], Optional[str], Optional[str]]:
+    """
+    Walk headings and bucket sibling content into description / requirements /
+    responsibilities. Returns inner HTML strings to preserve formatting.
+    """
+    desc_parts: list[str] = []
+    req_parts:  list[str] = []
+    resp_parts: list[str] = []
+
+    for heading in soup.find_all(re.compile(r'^h[1-6]$')):
+        text = heading.get_text(" ", strip=True)
+        if not _SECTION_RE.search(text):
+            continue
+        siblings_html = "".join(
+            str(sib)
+            for sib in heading.find_next_siblings()
+            if not (sib.name and re.match(r'^h[1-6]$', sib.name))
+        )
+        tl = text.lower()
+        if any(k in tl for k in ("description", "about", "overview", "summary")):
+            desc_parts.append(siblings_html)
+        elif any(k in tl for k in ("requirement", "qualification", "need", "bring")):
+            req_parts.append(siblings_html)
+        elif any(k in tl for k in ("responsibilit", "what you", "duties")):
+            resp_parts.append(siblings_html)
+
+    return (
+        "".join(desc_parts) or None,
+        "".join(req_parts)  or None,
+        "".join(resp_parts) or None,
+    )
+
+
+def _fallback_description(soup: BeautifulSoup, min_len: int = 200) -> Optional[str]:
+    """Return inner HTML from the largest block element when no labelled sections exist."""
+    candidates = [
+        el for el in soup.find_all(["div", "section", "article"])
+        if len(el.get_text(strip=True)) > min_len
+    ]
+    if not candidates:
+        return None
+    best = max(candidates, key=lambda el: len(el.get_text(strip=True)))
+    return str(best)
+
+
+def _infer_remote_status(text: str) -> Optional[str]:
+    if re.search(r'\bremote\b', text, re.I):                          return "remote"
+    if re.search(r'\bhybrid\b', text, re.I):                          return "hybrid"
+    if re.search(r'\b(on.?site|in.?office|in.?person)\b', text, re.I): return "onsite"
+    return None
+
+
+def _infer_experience_level(text: str) -> Optional[str]:
+    if re.search(r'\b(senior|sr\.?|lead|principal|staff|head of)\b', text, re.I):          return "senior"
+    if re.search(r'\b(junior|jr\.?|entry.?level|fresher|graduate|intern(ship)?)\b', text, re.I): return "junior"
+    if re.search(r'\b(mid.?level|associate|intermediate)\b', text, re.I):                  return "mid"
+    return None
+
+
+def _infer_employment_type(text: str) -> str:
+    if re.search(r'\bintern(ship)?\b', text, re.I):              return "internship"
+    if re.search(r'\bpart.?time\b', text, re.I):                 return "part-time"
+    if re.search(r'\b(contract|freelance|consultant)\b', text, re.I): return "contract"
+    return "full-time"
+
 
 class BaseScraper(ABC):
     def __init__(self, source_name: str, base_url: str):
@@ -20,6 +102,30 @@ class BaseScraper(ABC):
             response.raise_for_status()
             return response.text
 
+    async def fetch_job_detail(self, url: str) -> Dict[str, Optional[str]]:
+        """Fetch a job detail page and return extracted fields."""
+        result: Dict[str, Optional[str]] = {
+            "description": None, "requirements": None, "responsibilities": None,
+            "experience_level": None, "employment_type": None, "remote_status": None,
+        }
+        try:
+            soup = BeautifulSoup(await self.fetch_html(url), "html.parser")
+            _clean_soup(soup)
+
+            desc, req, resp = _extract_sections(soup)
+            result["description"]     = desc or _fallback_description(soup)
+            result["requirements"]    = req
+            result["responsibilities"] = resp
+
+            full_text = soup.get_text(" ", strip=True)
+            result["remote_status"]    = _infer_remote_status(full_text)
+            result["experience_level"] = _infer_experience_level(full_text)
+            result["employment_type"]  = _infer_employment_type(full_text)
+        except Exception as exc:
+            import logging
+            logging.getLogger(__name__).debug(f"fetch_job_detail failed for {url}: {exc}")
+        return result
+
     @abstractmethod
     async def fetch(self) -> List[Any]:
         """Fetch raw HTML or JSON payload using httpx."""
@@ -31,8 +137,8 @@ class BaseScraper(ABC):
         pass
 
     @abstractmethod
-    def normalize(self, parsed_data: List[Dict[str, Any]]) -> List[JobCreate]:
-        """Map fields to the standard Pydantic schema."""
+    async def normalize(self, parsed_data: List[Dict[str, Any]]) -> List[JobCreate]:
+        """Map fields to the standard Pydantic schema, may fetch detail pages."""
         pass
 
     async def save(self, db: AsyncSession, normalized_jobs: List[JobCreate], source_id: int | None = None) -> None:
@@ -99,6 +205,6 @@ class BaseScraper(ABC):
         """Execute the full scraping pipeline."""
         raw_data = await self.fetch()
         parsed_data = self.parse(raw_data)
-        normalized = self.normalize(parsed_data)
+        normalized = await self.normalize(parsed_data)
         await self.save(db, normalized, source_id)
         return normalized
