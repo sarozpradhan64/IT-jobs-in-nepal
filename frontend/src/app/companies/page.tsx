@@ -10,6 +10,7 @@ export interface CompanyData {
   career_page?: string;
   logo_url?: string;
   overview?: string;
+  active_job_count?: number;
 }
 
 // Fetch Companies
@@ -31,6 +32,7 @@ async function getCompanies(searchParams: {
     }
 
     const data = await res.json();
+    console.log(data);
     return Array.isArray(data) ? data : [];
   } catch (error) {
     console.error("Failed to fetch companies:", error);
@@ -104,7 +106,9 @@ export default async function CompaniesPage({
 
                 <div className="pt-4 border-t border-outline-variant/20 flex items-center justify-between mt-auto">
                   <span className="font-mono text-xs text-on-surface-variant">
-                    Active Jobs
+                    {company.active_job_count !== undefined 
+                      ? `${company.active_job_count} Active Job${company.active_job_count !== 1 ? 's' : ''}` 
+                      : 'Active Jobs'}
                   </span>
                   <span className="bg-primary/10 text-primary px-3 py-1 rounded-full font-mono text-xs font-bold transition-colors group-hover:bg-secondary/15 group-hover:text-secondary">
                     View Roles
