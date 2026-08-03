@@ -24,6 +24,27 @@ def _clean_soup(soup: BeautifulSoup) -> None:
         tag.decompose()
 
 
+def _process_html_links(html: Optional[str]) -> Optional[str]:
+    """Ensure all links have target='_blank' and rel='noopener noreferrer'."""
+    if not html:
+        return html
+    try:
+        soup = BeautifulSoup(html, "html.parser")
+        for a in soup.find_all('a', href=True):
+            a['target'] = '_blank'
+            
+            rel = a.get('rel', [])
+            if isinstance(rel, str):
+                rel = rel.split()
+            if 'noreferrer' not in rel:
+                rel.append('noreferrer')
+            if 'noopener' not in rel:
+                rel.append('noopener')
+            a['rel'] = " ".join(rel)
+        return str(soup)
+    except Exception:
+        return html
+
 def _extract_sections(soup: BeautifulSoup) -> tuple[Optional[str], Optional[str], Optional[str]]:
     """
     Walk headings and bucket sibling content into description / requirements /
@@ -162,6 +183,11 @@ class BaseScraper(ABC):
         classifier = await CategoryClassifier.load(db)
         
         for job_data in normalized_jobs:
+            # Process HTML fields to ensure external links open in a new tab securely
+            job_data.description = _process_html_links(job_data.description)
+            job_data.requirements = _process_html_links(job_data.requirements)
+            job_data.responsibilities = _process_html_links(job_data.responsibilities)
+
             # Generate a simple slug for the company
             company_slug = job_data.company_name.lower().replace(" ", "-")
             
