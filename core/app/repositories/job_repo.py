@@ -45,6 +45,15 @@ class JobRepository:
             await self.db.delete(job)
             await self.db.commit()
 
+    async def delete_by_source_except(self, source_id: int, exclude_job_ids: list[int]) -> int:
+        from sqlalchemy import delete
+        query = delete(Job).where(Job.source_id == source_id)
+        if exclude_job_ids:
+            query = query.where(Job.id.notin_(exclude_job_ids))
+        result = await self.db.execute(query)
+        await self.db.commit()
+        return result.rowcount
+
     async def list_active_jobs(
         self, 
         skip: int = 0, 

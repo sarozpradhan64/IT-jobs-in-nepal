@@ -162,7 +162,7 @@ class BaseScraper(ABC):
         """Map fields to the standard Pydantic schema, may fetch detail pages."""
         pass
 
-    async def save(self, db: AsyncSession, normalized_jobs: List[JobCreate], source_id: int | None = None) -> None:
+    async def save(self, db: AsyncSession, normalized_jobs: List[JobCreate], source_id: int | None = None) -> tuple[int, List[int]]:
         """Write to DB, check duplicates, and handle company association."""
         company_repo = CompanyRepository(db)
         job_repo = JobRepository(db)
@@ -181,6 +181,7 @@ class BaseScraper(ABC):
         
         # Load category classifier once for all jobs
         classifier = await CategoryClassifier.load(db)
+        saved_job_ids = []
         
         for job_data in normalized_jobs:
             # Process HTML fields to ensure external links open in a new tab securely
@@ -219,18 +220,29 @@ class BaseScraper(ABC):
             
             # TODO: create skills
             
-            await job_repo.create(
+            new_job = await job_repo.create(
                 obj_in=job_data,
                 company_id=company.id,
                 source_id=source_id,
                 skills_list=[],
                 category_id=category_id
             )
+            saved_job_ids.append(new_job.id)
+            
+        return source_id, saved_job_ids
 
     async def run(self, db: AsyncSession, source_id: int | None = None) -> List[JobCreate]:
         """Execute the full scraping pipeline."""
         raw_data = await self.fetch()
         parsed_data = self.parse(raw_data)
         normalized = await self.normalize(parsed_data)
-        await self.save(db, normalized, source_id)
+        
+        actual_source_id, saved_job_ids = await self.save(db, normalized, source_id)
+        
+        if actual_source_id:
+            job_repo = JobRepository(db)
+            deleted_count = await job_repo.delete_by_source_except(actual_source_id, saved_job_ids)
+            import logging
+            logging.getLogger(__name__).info(f"Deleted {deleted_count} stale jobs for source {self.source_name}")
+            
         return normalized
