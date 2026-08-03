@@ -1,6 +1,6 @@
 # IT Jobs Aggregator Nepal - Useful Commands
 
-*(All commands run from the `core/` directory with venv activated)*
+_(All commands run from the `core/` directory with venv activated)_
 
 ```bash
 # Activate venv — Windows
@@ -34,11 +34,11 @@ alembic history
 ## Scrapers
 
 ```bash
-# All portals (MeroJob + JobsNepal + LinkedIn)
+# All portals (Kumarijob + JobsNepal + LinkedIn)
 python -m app.scrapers.run --source all
 
 # Specific portal
-python -m app.scrapers.run --source merojob
+python -m app.scrapers.run --source kumarijob
 python -m app.scrapers.run --source jobsnepal
 python -m app.scrapers.run --source linkedin
 

@@ -18,11 +18,11 @@
 
 ## 📖 Overview
 
-**IT Jobs Nepal** is an open-source job aggregator that automatically scrapes IT job listings from major Nepali job portals — MeroJob, JobsNepal, LinkedIn — and directly from company career pages. It exposes a clean REST API and a modern Next.js frontend, so developers, tech professionals in Nepal can discover all opportunities in one place.
+**IT Jobs Nepal** is an open-source job aggregator that automatically scrapes IT job listings from major Nepali job portals — Kumarijob, JobsNepal, LinkedIn — and directly from company career pages. It exposes a clean REST API and a modern Next.js frontend, so developers, tech professionals in Nepal can discover all opportunities in one place.
 
 ### ✨ Key Features
 
-- 🔍 **Multi-source scraping** — 50+ company career pages, LinkedIn, MeroJob, and JobsNepal 
+- 🔍 **Multi-source scraping** — 50+ company career pages, LinkedIn, Kumarijob, and JobsNepal
 - ⚡ **Smart Career Page Engine** — Intelligent crawler that discovers job listings directly from company websites
 - 🕐 **Weekly automated scraping** via GitHub Actions
 
@@ -44,7 +44,7 @@ IT-jobs-in-nepal/
 │   │   │   ├── stats.py           # Aggregated statistics
 │   │   │   └── router.py          # API router
 │   │   ├── scrapers/              # Scraping engines
-│   │   │   ├── portal_engine.py   # Generic portal scraper (MeroJob, JobsNepal, LinkedIn)
+│   │   │   ├── portal_engine.py   # Generic portal scraper (Kumarijob, JobsNepal, LinkedIn)
 │   │   │   ├── career_page.py     # Smart company career page crawler
 │   │   │   ├── base.py            # Base scraper class
 │   │   │   ├── constants.py       # IT keyword filter list
@@ -129,13 +129,13 @@ npm run dev
 
 ## ⚙️ Environment Variables
 
-*Note: The backend works out-of-the-box with default SQLite settings and does not require a `.env` file for local development.*
+_Note: The backend works out-of-the-box with default SQLite settings and does not require a `.env` file for local development._
 
 ### Frontend — `frontend/.env.local` (Required)
 
-| Variable | Default | Required | Description |
-|----------|---------|----------|-------------|
-| `NEXT_PUBLIC_API_URL` | `http://localhost:8000` | ✅ | Backend API base URL |
+| Variable              | Default                 | Required | Description          |
+| --------------------- | ----------------------- | -------- | -------------------- |
+| `NEXT_PUBLIC_API_URL` | `http://localhost:8000` | ✅       | Backend API base URL |
 
 ---
 
@@ -157,11 +157,11 @@ source venv/bin/activate
 These scrapers search job portals by IT keyword and save results to the database.
 
 ```bash
-# Run ALL portal scrapers at once (MeroJob + JobsNepal + LinkedIn)
+# Run ALL portal scrapers at once (Kumarijob + JobsNepal + LinkedIn)
 python -m app.scrapers.run --source all
 
 # Run a specific portal scraper
-python -m app.scrapers.run --source merojob
+python -m app.scrapers.run --source kumarijob
 python -m app.scrapers.run --source jobsnepal
 python -m app.scrapers.run --source linkedin
 ```
@@ -183,11 +183,11 @@ python -m app.scrapers.run --source all --github-companies --dev
 
 ### Available Scraper Options
 
-| Flag | Description |
-|------|-------------|
-| `--source <name>` | Portal to scrape: `merojob`, `jobsnepal`, `linkedin`, `all`, `none` |
-| `--github-companies` | Also run the smart career page crawler |
-| `--dev` | Dev mode — cap at 5 companies with jobs for quick testing |
+| Flag                 | Description                                                           |
+| -------------------- | --------------------------------------------------------------------- |
+| `--source <name>`    | Portal to scrape: `kumarijob`, `jobsnepal`, `linkedin`, `all`, `none` |
+| `--github-companies` | Also run the smart career page crawler                                |
+| `--dev`              | Dev mode — cap at 5 companies with jobs for quick testing             |
 
 ### IT Keyword Filters
 
@@ -205,13 +205,13 @@ react developer · android developer · ios developer · qa engineer · ui ux de
 
 **Base URL:** `http://localhost:8000/api`
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/api/jobs` | List all job listings (supports filters/pagination) |
-| `GET` | `/api/jobs/{id}` | Get a single job by ID |
-| `GET` | `/api/companies` | List all tracked companies |
-| `GET` | `/api/stats` | Aggregated stats (total jobs, companies, portals) |
-| `GET` | `/` | API health check |
+| Method | Endpoint         | Description                                         |
+| ------ | ---------------- | --------------------------------------------------- |
+| `GET`  | `/api/jobs`      | List all job listings (supports filters/pagination) |
+| `GET`  | `/api/jobs/{id}` | Get a single job by ID                              |
+| `GET`  | `/api/companies` | List all tracked companies                          |
+| `GET`  | `/api/stats`     | Aggregated stats (total jobs, companies, portals)   |
+| `GET`  | `/`              | API health check                                    |
 
 > Full interactive docs with request/response schemas: **http://localhost:8000/docs**
 
@@ -231,13 +231,13 @@ Company ──< Job >── ScraperSource
            Skill
 ```
 
-| Table | Description |
-|-------|-------------|
-| `companies` | Tracked companies with website/career page links |
-| `jobs` | Scraped job listings with title, location, type, salary, etc. |
-| `scraper_sources` | Registered scrapers (merojob, jobsnepal, linkedin) |
-| `skills` | Normalized skill tags |
-| `job_skills` | Many-to-many job ↔ skill associations |
+| Table             | Description                                                   |
+| ----------------- | ------------------------------------------------------------- |
+| `companies`       | Tracked companies with website/career page links              |
+| `jobs`            | Scraped job listings with title, location, type, salary, etc. |
+| `scraper_sources` | Registered scrapers (kumarijob, jobsnepal, linkedin)          |
+| `skills`          | Normalized skill tags                                         |
+| `job_skills`      | Many-to-many job ↔ skill associations                         |
 
 ### Database Migrations (Alembic)
 
@@ -308,7 +308,7 @@ This project is licensed under the **MIT License** — see the [LICENSE](LICENSE
 
 ## 🙏 Acknowledgements
 
-- [MeroJob](https://merojob.com) — Nepal's leading job portal
+- [Kumarijob](https://kumarijob.com) — Nepal's leading job portal
 - [JobsNepal](https://www.jobsnepal.com) — Nepali job listings platform
 - [LinkedIn Jobs](https://www.linkedin.com/jobs) — Professional network job board
 - [FastAPI](https://fastapi.tiangolo.com) — Modern, high-performance Python web framework

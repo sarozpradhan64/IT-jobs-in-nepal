@@ -4,8 +4,8 @@ from app.schemas.job import JobCreate
 from app.repositories.job_repo import JobRepository
 from app.repositories.company_repo import CompanyRepository
 from app.services.category_classifier import CategoryClassifier
-from sqlalchemy.ext.asyncio import AsyncSession
-import httpx
+from sqlalchemy.ext.asyncio import AsyncSession as DbAsyncSession
+from curl_cffi.requests import AsyncSession
 import asyncio
 import re
 from bs4 import BeautifulSoup
@@ -117,9 +117,9 @@ class BaseScraper(ABC):
         self.base_url = base_url
 
     async def fetch_html(self, url: str) -> str:
-        """Helper to fetch HTML using httpx (follows redirects automatically)."""
-        async with httpx.AsyncClient(timeout=10.0, follow_redirects=True) as client:
-            response = await client.get(url, headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) ITJobsNepal/1.0"})
+        """Helper to fetch HTML using curl_cffi to bypass Cloudflare."""
+        async with AsyncSession(impersonate="chrome110", timeout=15.0) as client:
+            response = await client.get(url, headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36"})
             response.raise_for_status()
             return response.text
 
@@ -162,7 +162,7 @@ class BaseScraper(ABC):
         """Map fields to the standard Pydantic schema, may fetch detail pages."""
         pass
 
-    async def save(self, db: AsyncSession, normalized_jobs: List[JobCreate], source_id: int | None = None) -> tuple[int, List[int]]:
+    async def save(self, db: DbAsyncSession, normalized_jobs: List[JobCreate], source_id: int | None = None) -> tuple[int, List[int]]:
         """Write to DB, check duplicates, and handle company association."""
         company_repo = CompanyRepository(db)
         job_repo = JobRepository(db)
@@ -231,7 +231,7 @@ class BaseScraper(ABC):
             
         return source_id, saved_job_ids
 
-    async def run(self, db: AsyncSession, source_id: int | None = None) -> List[JobCreate]:
+    async def run(self, db: DbAsyncSession, source_id: int | None = None) -> List[JobCreate]:
         """Execute the full scraping pipeline."""
         raw_data = await self.fetch()
         parsed_data = self.parse(raw_data)

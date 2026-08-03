@@ -1,6 +1,14 @@
 import Link from "next/link";
 import React from "react";
-import { Target, Flag, Cpu, Blocks, Terminal, HeartHandshake, AlertTriangle } from "lucide-react";
+import {
+  Target,
+  Flag,
+  Cpu,
+  Blocks,
+  Terminal,
+  HeartHandshake,
+  AlertTriangle,
+} from "lucide-react";
 import { SiGithub } from "@icons-pack/react-simple-icons";
 
 export default function AboutPage() {
@@ -71,13 +79,13 @@ export default function AboutPage() {
                 How It Works
               </h2>
               <div className="font-sans text-on-surface-variant leading-relaxed mb-4">
-                We use custom Python web scrapers that
-                intelligently extract job data from:
+                We use custom Python web scrapers that intelligently extract job
+                data from:
               </div>
               <ul className="space-y-3 font-sans text-on-surface-variant">
                 {[
                   "50+ individual company career pages",
-                  "Top portals (MeroJob, JobsNepal, etc.)",
+                  "Top portals (Kumarijob, JobsNepal, etc.)",
                   "LinkedIn targeted at Nepal region",
                 ].map((item, i) => (
                   <li key={i} className="flex items-center gap-3">

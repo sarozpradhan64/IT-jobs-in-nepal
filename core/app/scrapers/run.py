@@ -3,7 +3,7 @@ Scraper CLI entry point.
 
 Usage (from the `core/` directory with venv activated):
     python -m app.scrapers.run --source all
-    python -m app.scrapers.run --source merojob
+    python -m app.scrapers.run --source kumarijob
     python -m app.scrapers.run --source jobsnepal
 """
 import asyncio

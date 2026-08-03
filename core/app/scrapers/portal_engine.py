@@ -13,30 +13,26 @@ from app.schemas.job import JobCreate
 log = logging.getLogger(__name__)
 
 PORTAL_CONFIGS = {
-    "merojob": {
-        "base_url": "https://merojob.com",
-        "search_url_templates": ["https://merojob.com/search/?search={keyword}"],
-        "card_selector": "div.job-post, div.search-result-item, div.card.job-card, article.job-item",
-        "title_selector": "h1 a, h2 a, h3 a, .job-title a, a.job-title",
-        "company_selector": ".company-name, .employer-name, span.job-company, .company",
-        "location_selector": ".job-location, span.location, .location",
-        "logo_selector": "img.company-logo, img.logo, img",
-        "next_page_selector": "li.page-item a[rel='next'], a.next-page",
-        "max_pages": 3,
+    "kumarijob": {
+        "base_url": "https://www.kumarijob.com",
+        "category_urls": ["https://www.kumarijob.com/"],
+        "card_selector": "div.handle-job-view-count",
+        "title_selector": "a.job-info",
+        "company_selector": "img[alt]",
+        "location_selector": None,
+        "logo_selector": "img",
+        "next_page_selector": None,
+        "max_pages": 1,
     },
     "jobsnepal": {
         "base_url": "https://www.jobsnepal.com",
-        "search_url_templates": [
-            "https://www.jobsnepal.com/search-jobs?search={keyword}",
-            "https://www.jobsnepal.com/jobs?q={keyword}",
-            "https://www.jobsnepal.com/?s={keyword}"
-        ],
-        "card_selector": "article.job-item, div.job-listing, div.job-list-item, .single-job, div.job-post, .job-card, li.job-item",
-        "title_selector": "h2 a, h3 a, .job-title a, a.job-title, h1 a, .title a, a.title",
-        "company_selector": ".company, .employer, .company-name, .employer-name, span.company",
-        "location_selector": ".location, .job-location, span.location, .address, .place",
+        "category_urls": ["https://www.jobsnepal.com/category/information-technology-jobs"],
+        "card_selector": "div.media.py-1",
+        "title_selector": "h5.job-title a",
+        "company_selector": "h4.job-company",
+        "location_selector": ".location, .job-location, span.location",
         "logo_selector": "img",
-        "next_page_selector": "a[rel='next'], li.next a, a.next-page",
+        "next_page_selector": "a[rel='next'], li.next a, .pagination a.next",
         "max_pages": 3,
     },
     "linkedin": {
@@ -62,21 +58,20 @@ class SmartPortalScraper(BaseScraper):
 
     async def fetch(self) -> List[str]:
         pages: List[str] = []
-        for keyword in IT_KEYWORDS:
-            fetched_any = False
-            for template in self.config["search_url_templates"]:
-                search_url = template.replace("{keyword}", keyword.replace(" ", "%20"))
+
+        if "category_urls" in self.config:
+            for url in self.config["category_urls"]:
                 try:
-                    log.info(f"[{self.source_name}] Keyword='{keyword}': {search_url}")
-                    html = await self.fetch_html(search_url)
+                    log.info(f"[{self.source_name}] Fetching category: {url}")
+                    html = await self.fetch_html(url)
                     soup = BeautifulSoup(html, "html.parser")
 
                     has_results = bool(soup.select(self.config["card_selector"]))
                     if not has_results:
+                        log.warning(f"[{self.source_name}] No results in category {url}")
                         continue
 
                     pages.append(html)
-                    fetched_any = True
 
                     page_num = 2
                     next_selector = self.config["next_page_selector"]
@@ -86,7 +81,7 @@ class SmartPortalScraper(BaseScraper):
                     
                     while next_link and page_num <= max_pages:
                         next_url = urljoin(self.base_url, next_link["href"])
-                        log.info(f"[{self.source_name}] Keyword='{keyword}' page {page_num}: {next_url}")
+                        log.info(f"[{self.source_name}] Category page {page_num}: {next_url}")
                         try:
                             next_html = await self.fetch_html(next_url)
                             pages.append(next_html)
@@ -96,15 +91,53 @@ class SmartPortalScraper(BaseScraper):
                         except Exception as exc:
                             log.warning(f"[{self.source_name}] Pagination stopped: {exc}")
                             break
-
-                    break  # Found working template
-
                 except Exception as exc:
-                    log.warning(f"[{self.source_name}] Failed '{search_url}': {exc}")
-                    continue
+                    log.warning(f"[{self.source_name}] Failed '{url}': {exc}")
 
-            if not fetched_any:
-                log.warning(f"[{self.source_name}] No results found for keyword: '{keyword}'")
+        else:
+            for keyword in IT_KEYWORDS:
+                fetched_any = False
+                for template in self.config["search_url_templates"]:
+                    search_url = template.replace("{keyword}", keyword.replace(" ", "%20"))
+                    try:
+                        log.info(f"[{self.source_name}] Keyword='{keyword}': {search_url}")
+                        html = await self.fetch_html(search_url)
+                        soup = BeautifulSoup(html, "html.parser")
+
+                        has_results = bool(soup.select(self.config["card_selector"]))
+                        if not has_results:
+                            continue
+
+                        pages.append(html)
+                        fetched_any = True
+
+                        page_num = 2
+                        next_selector = self.config["next_page_selector"]
+                        max_pages = self.config["max_pages"]
+                        
+                        next_link = soup.select_one(next_selector) if next_selector else None
+                        
+                        while next_link and page_num <= max_pages:
+                            next_url = urljoin(self.base_url, next_link["href"])
+                            log.info(f"[{self.source_name}] Keyword='{keyword}' page {page_num}: {next_url}")
+                            try:
+                                next_html = await self.fetch_html(next_url)
+                                pages.append(next_html)
+                                next_soup = BeautifulSoup(next_html, "html.parser")
+                                next_link = next_soup.select_one(next_selector)
+                                page_num += 1
+                            except Exception as exc:
+                                log.warning(f"[{self.source_name}] Pagination stopped: {exc}")
+                                break
+
+                        break  # Found working template
+
+                    except Exception as exc:
+                        log.warning(f"[{self.source_name}] Failed '{search_url}': {exc}")
+                        continue
+
+                if not fetched_any:
+                    log.warning(f"[{self.source_name}] No results found for keyword: '{keyword}'")
 
         return pages
 
@@ -119,7 +152,9 @@ class SmartPortalScraper(BaseScraper):
                 try:
                     title_tag = card.select_one(self.config["title_selector"])
                     company_tag = card.select_one(self.config["company_selector"])
-                    location_tag = card.select_one(self.config["location_selector"])
+                    location_tag = None
+                    if self.config.get("location_selector"):
+                        location_tag = card.select_one(self.config["location_selector"])
                     logo_tag = card.select_one(self.config["logo_selector"])
 
                     if not title_tag:
@@ -138,12 +173,26 @@ class SmartPortalScraper(BaseScraper):
                     if not title:
                          continue
 
-                    raw_logo = logo_tag.get("src") if logo_tag else None
+                    raw_logo = logo_tag.get("src") or logo_tag.get("data-src") if logo_tag else None
                     logo_url = urljoin(self.base_url, raw_logo) if raw_logo else None
+
+                    # Filter for IT jobs if it's kumarijob (since we scrape the homepage)
+                    title_lower = title.lower()
+                    if self.source_name == "kumarijob":
+                        broad_it_keywords = ["developer", "software", "engineer", "frontend", "backend", "fullstack", "react", "python", "php", "java", "node", "devops", "qa", "ui", "ux", "system", "network", "cloud", "data", "it ", "tech", "web"]
+                        if not any(kw in title_lower for kw in broad_it_keywords):
+                            continue
+                            
+                    company_name = "Unknown"
+                    if company_tag:
+                        if company_tag.name == "img":
+                            company_name = company_tag.get("alt", "Unknown")
+                        else:
+                            company_name = company_tag.get_text(strip=True)
 
                     jobs.append({
                         "title": title,
-                        "company": company_tag.get_text(strip=True) if company_tag else "Unknown",
+                        "company": company_name,
                         "location": location_tag.get_text(strip=True) if location_tag else "Nepal",
                         "logo_url": logo_url,
                         "apply_url": apply_url,
