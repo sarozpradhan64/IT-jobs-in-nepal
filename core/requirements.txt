@@ -29,7 +29,7 @@ pyairtable==3.4.0
 pycparser==3.0
 pydantic==2.13.4
 pydantic-settings==2.14.2
-pydantic_core==2.46.4
+pydantic_core==2.47.0
 pyee==13.0.1
 Pygments==2.20.0
 pytest==9.1.1
