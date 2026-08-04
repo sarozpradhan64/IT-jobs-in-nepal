@@ -4,7 +4,7 @@ import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { ChevronDown } from "lucide-react";
 
 const SOURCES = [
-  ["merojob", "MeroJob"],
+  ["kumarijob", "Kumarijob"],
   ["jobsnepal", "JobsNepal"],
   ["linkedin", "LinkedIn"],
   ["career_page", "Career Page"],
@@ -34,12 +34,19 @@ export function SourceFilter() {
       >
         <option value="">All Sources</option>
         {SOURCES.map(([value, label]) => (
-          <option key={value} value={value} className="bg-surface text-on-surface">
+          <option
+            key={value}
+            value={value}
+            className="bg-surface text-on-surface"
+          >
             {label}
           </option>
         ))}
       </select>
-      <ChevronDown size={15} className="absolute right-2.5 pointer-events-none text-outline-variant" />
+      <ChevronDown
+        size={15}
+        className="absolute right-2.5 pointer-events-none text-outline-variant"
+      />
     </div>
   );
 }

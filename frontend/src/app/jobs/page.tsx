@@ -36,7 +36,7 @@ async function getJobs(searchParams: {
 
   try {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${endpoint}`, {
-      next: { revalidate: 60 }, // Cache for 60 seconds
+      cache: "no-store",
     });
 
     if (!res.ok) {
@@ -75,7 +75,7 @@ export default async function JobsPage({
   const categories = await getCategories();
   
   const currentPage = resolvedParams.page ? parseInt(resolvedParams.page as string, 10) : 1;
-  const limit = 10;
+  const limit = 20;
 
   const activeFilterCount = ["q", "category", "remote_status", "employment_type", "experience_level", "source"]
     .filter((k) => resolvedParams[k]).length;

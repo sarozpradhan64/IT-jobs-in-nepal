@@ -140,3 +140,14 @@ class Job(Base):
 Index("idx_jobs_title_gin", Job.title, postgresql_using="gin")
 Index("idx_jobs_description_gin", Job.description, postgresql_using="gin")
 Index("idx_jobs_requirements_gin", Job.requirements, postgresql_using="gin")
+
+from sqlalchemy import select, func
+from sqlalchemy.orm import column_property
+
+Company.active_job_count = column_property(
+    select(func.count(Job.id))
+    .where(Job.company_id == Company.id)
+    .where(Job.is_active == True)
+    .correlate_except(Job)
+    .scalar_subquery()
+)

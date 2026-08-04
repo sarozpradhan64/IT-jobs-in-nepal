@@ -25,6 +25,7 @@ class Company(CompanyBase):
     is_active: bool
     created_at: datetime
     updated_at: datetime
+    active_job_count: int = 0
 
     class Config:
         from_attributes = True

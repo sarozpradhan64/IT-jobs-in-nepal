@@ -4,7 +4,7 @@ from sqlalchemy.orm import selectinload
 from sqlalchemy import func
 from app.models import Job, Company, Skill
 from app.schemas.job import JobCreate, JobUpdate
-from datetime import datetime
+from datetime import datetime, UTC
 
 class JobRepository:
     def __init__(self, db: AsyncSession):
@@ -44,6 +44,15 @@ class JobRepository:
         if job:
             await self.db.delete(job)
             await self.db.commit()
+
+    async def delete_by_source_except(self, source_id: int, exclude_job_ids: list[int]) -> int:
+        from sqlalchemy import delete
+        query = delete(Job).where(Job.source_id == source_id)
+        if exclude_job_ids:
+            query = query.where(Job.id.notin_(exclude_job_ids))
+        result = await self.db.execute(query)
+        await self.db.commit()
+        return result.rowcount
 
     async def list_active_jobs(
         self, 
@@ -110,7 +119,7 @@ class JobRepository:
         query = select(Job).options(selectinload(Job.company), selectinload(Job.skills), selectinload(Job.source), selectinload(Job.category)).where(Job.is_active == True)
         
         # We also want to filter out expired jobs if expiry_date is set
-        query = query.where((Job.expiry_date == None) | (Job.expiry_date > datetime.utcnow()))
+        query = query.where((Job.expiry_date == None) | (Job.expiry_date > datetime.now(UTC)))
         
         if q:
             search_pattern = f"%{q}%"
