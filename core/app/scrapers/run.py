@@ -10,7 +10,7 @@ import asyncio
 import argparse
 import json
 import logging
-from datetime import datetime
+from datetime import datetime, UTC
 from pathlib import Path
 from app.database import SessionLocal, engine, Base
 from app.scrapers.portal_engine import SmartPortalScraper, PORTAL_CONFIGS
@@ -30,7 +30,7 @@ LOGS_DIR = Path(__file__).resolve().parents[3] / "logs"
 
 def _append_log(log_file: Path, entry: dict) -> None:
     """Append an entry to the run's JSON log file."""
-    entry["timestamp"] = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
+    entry["timestamp"] = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
     existing: list = json.loads(log_file.read_text(encoding="utf-8")) if log_file.exists() else []
     existing.append(entry)
     log_file.write_text(json.dumps(existing, indent=2), encoding="utf-8")
@@ -108,7 +108,7 @@ async def run_scraper(source: str, github: bool = False, dev_mode: bool = False)
         await conn.run_sync(Base.metadata.create_all)
 
     LOGS_DIR.mkdir(exist_ok=True)
-    run_ts = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+    run_ts = datetime.now(UTC).strftime("%Y%m%d_%H%M%S")
     log_file = LOGS_DIR / f"scrape_{run_ts}.json"
 
     if source == "all":
