@@ -50,6 +50,17 @@ jobs:
           # Note: AIRTABLE_API_KEY is not required — the company list is fetched
           # from the public GitHub README (mesaugat/tech-companies-in-nepal), not Airtable.
 
+      # ── 4.1 Ensure database file exists ───────────────────────────────────────
+      - name: Check if database exists, create if missing
+        run: |
+          if [ -f "it_jobs_nepal.db" ]; then
+            echo "Database already exists — $(du -h it_jobs_nepal.db | cut -f1)"
+          else
+            echo "Database not found — creating a new one."
+            python -c "import sqlite3; sqlite3.connect('it_jobs_nepal.db').close()"
+            echo "Empty database created at core/it_jobs_nepal.db"
+          fi
+
       # ── 5. Apply DB migrations ────────────────────────────────────────────────
       - name: Apply Alembic migrations
         run: alembic upgrade head
