@@ -25,7 +25,7 @@ packaging==26.2
 playwright==1.62.0
 pluggy==1.6.0
 psycopg2-binary==2.9.12
-pyairtable==3.4.0
+pyairtable==3.4.2
 pycparser==3.0
 pydantic==2.13.4
 pydantic-settings==2.15.0
