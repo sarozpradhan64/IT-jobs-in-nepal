@@ -6,6 +6,7 @@ import { JobSort } from "@/components/ui/job-sort";
 import { SourceFilter } from "@/components/ui/source-filter";
 import { Pagination } from "@/components/ui/pagination";
 import { SlidersHorizontal, SearchX } from "lucide-react";
+import { SectionTitle } from "@/components/ui/section-title";
 
 async function getJobs(searchParams: {
   [key: string]: string | string[] | undefined;
@@ -55,7 +56,7 @@ async function getJobs(searchParams: {
 async function getCategories() {
   try {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/categories`, {
-      next: { revalidate: 3600 }, // Cache categories for 1 hour
+      next: { revalidate: 3600 },
     });
     if (!res.ok) return [];
     return await res.json();
@@ -95,32 +96,32 @@ export default async function JobsPage({
   };
 
   return (
-    <div className="bg-surface-container-lowest min-h-screen pb-xl">
+    <div className="bg-[#020617] min-h-screen pb-20 relative">
       <div className="max-w-7xl mx-auto px-6 pt-10">
         {/* Page Header */}
         <div className="mb-10">
-          <p className="font-mono text-xs text-secondary uppercase tracking-widest mb-2">Jobs</p>
-          <h1 className="font-sans text-4xl md:text-5xl font-bold mb-3 tracking-tight text-on-surface">
-            Discover Your Next <span className="text-primary">Tech Role</span>
-          </h1>
-          <p className="text-on-surface-variant font-sans text-base max-w-2xl">
-            Explore the latest opportunities from top companies across Nepal.
+          <SectionTitle
+            title="Discover Your Next Tech Role"
+            subtitle="EXPLORE TECH CAREERS IN NEPAL"
+          />
+          <p className="text-slate-300 font-sans text-base max-w-2xl -mt-4">
+            Aggregated real-time from verified company career pages, LinkedIn, and top tech boards across Nepal.
           </p>
         </div>
 
         <div className="flex flex-col lg:flex-row gap-6 items-start">
           {/* Sidebar */}
-          <aside className="w-full lg:w-64 shrink-0 lg:sticky lg:top-20 z-10">
-            <div className="bg-surface-container border border-outline-variant rounded-xl p-5">
-              <h3 className="font-sans text-xs font-bold uppercase tracking-widest text-on-surface-variant flex items-center gap-2 mb-5">
-                <SlidersHorizontal size={13} className="text-primary" />
-                Filters
+          <aside className="w-full lg:w-64 shrink-0 lg:sticky lg:top-24 z-10">
+            <div className="bg-[#0f172a] border border-white/10 rounded-2xl p-5 shadow-premium">
+              <h3 className="font-sans text-xs font-bold uppercase tracking-widest text-slate-300 flex items-center gap-2 mb-5">
+                <SlidersHorizontal size={14} className="text-secondary" />
+                <span>Filters</span>
                 {activeFilterCount > 0 && (
-                  <span className="ml-auto flex items-center gap-1.5">
-                    <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold text-white">
+                  <span className="ml-auto flex items-center gap-2">
+                    <span className="rounded-full bg-secondary text-[#020617] px-2 py-0.5 text-[10px] font-bold">
                       {activeFilterCount}
                     </span>
-                    <Link href="/jobs" className="font-mono text-[10px] text-outline hover:text-primary transition-colors">
+                    <Link href="/jobs" className="font-mono text-xs text-secondary hover:text-white transition-colors">
                       Clear
                     </Link>
                   </span>
@@ -129,9 +130,9 @@ export default async function JobsPage({
               <React.Suspense
                 fallback={
                   <div className="space-y-3">
-                    <div className="h-9 animate-pulse bg-surface-container-high rounded-lg" />
-                    <div className="h-28 animate-pulse bg-surface-container-high rounded-lg" />
-                    <div className="h-20 animate-pulse bg-surface-container-high rounded-lg" />
+                    <div className="h-9 animate-pulse bg-[#1e293b] rounded-xl" />
+                    <div className="h-28 animate-pulse bg-[#1e293b] rounded-xl" />
+                    <div className="h-20 animate-pulse bg-[#1e293b] rounded-xl" />
                   </div>
                 }
               >
@@ -143,37 +144,37 @@ export default async function JobsPage({
           {/* Listings */}
           <div className="grow w-full min-w-0">
             {/* Toolbar */}
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-5 bg-surface-container border border-outline-variant rounded-xl px-4 py-3">
-              <p className="font-mono text-xs text-on-surface-variant uppercase tracking-wider">
-                <span className="font-bold text-on-surface text-sm">{total}</span> active listings
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6 bg-[#0f172a] border border-white/10 rounded-2xl px-5 py-3.5 shadow-premium">
+              <p className="font-mono text-xs text-slate-400 uppercase tracking-wider">
+                Showing <span className="font-bold text-secondary text-sm">{total}</span> Active Listings
               </p>
               <div className="flex items-center gap-3">
-                <React.Suspense fallback={<div className="h-8 w-28 bg-surface-container-high rounded-lg animate-pulse" />}>
+                <React.Suspense fallback={<div className="h-8 w-28 bg-[#1e293b] rounded-lg animate-pulse" />}>
                   <SourceFilter />
                 </React.Suspense>
-                <span className="font-mono text-xs text-on-surface-variant">Sort by:</span>
-                <React.Suspense fallback={<div className="h-8 w-28 bg-surface-container-high rounded-lg animate-pulse" />}>
+                <span className="font-mono text-xs text-slate-400">Sort:</span>
+                <React.Suspense fallback={<div className="h-8 w-28 bg-[#1e293b] rounded-lg animate-pulse" />}>
                   <JobSort />
                 </React.Suspense>
               </div>
             </div>
 
             {/* Cards */}
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
               {jobs.length > 0 ? (
                 jobs.map((job) => <JobCard key={job.id} job={job} />)
               ) : (
-                <div className="md:col-span-2 xl:col-span-3 bg-surface-container border border-outline-variant rounded-xl p-16 text-center flex flex-col items-center">
-                  <div className="w-14 h-14 rounded-xl bg-surface-container-high border border-outline-variant flex items-center justify-center mb-5">
-                    <SearchX size={24} className="text-outline" />
+                <div className="md:col-span-2 xl:col-span-3 bg-[#0f172a] border border-white/10 rounded-2xl p-16 text-center flex flex-col items-center shadow-premium">
+                  <div className="w-14 h-14 rounded-2xl bg-[#1e293b] border border-white/10 flex items-center justify-center mb-5 text-secondary">
+                    <SearchX size={24} />
                   </div>
-                  <h3 className="font-sans text-base font-bold text-on-surface mb-1">No jobs found</h3>
-                  <p className="text-on-surface-variant font-sans text-sm mb-6">
-                    No roles match your current filters. Try broadening your search.
+                  <h3 className="font-sans text-lg font-bold text-white mb-2">No jobs found</h3>
+                  <p className="text-slate-400 font-sans text-sm mb-6 max-w-sm">
+                    No roles match your current filters. Try broadening your keywords or clearing selected filters.
                   </p>
                   <a
                     href="/jobs"
-                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-primary/10 border border-primary/20 text-primary font-sans font-medium text-sm hover:bg-primary/20 transition-colors"
+                    className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-secondary/15 border border-secondary/30 text-secondary hover:bg-secondary hover:text-[#020617] font-sans font-semibold text-xs tracking-wider uppercase transition-all duration-300"
                   >
                     Clear all filters
                   </a>

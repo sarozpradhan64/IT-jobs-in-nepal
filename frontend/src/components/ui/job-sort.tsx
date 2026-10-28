@@ -21,15 +21,15 @@ export function JobSort() {
       <select
         value={currentSort}
         onChange={handleChange}
-        className="appearance-none bg-surface border border-outline-variant/30 text-on-surface font-sans text-sm rounded-lg focus:border-primary/50 focus:ring-2 focus:ring-primary/20 outline-none py-2 pl-4 pr-9 cursor-pointer hover:bg-surface-variant/30 transition-colors"
+        className="appearance-none bg-[#1e293b]/80 border border-white/10 text-white font-sans text-xs sm:text-sm rounded-xl focus:border-secondary/50 focus:ring-1 focus:ring-secondary/20 outline-none py-2 pl-3.5 pr-8 cursor-pointer hover:bg-[#1e293b] transition-colors"
       >
-        <option value="date" className="bg-surface text-on-surface">Latest (Date)</option>
-        <option value="salary" className="bg-surface text-on-surface">Salary</option>
-        <option value="title" className="bg-surface text-on-surface">Title</option>
+        <option value="date" className="bg-[#0f172a] text-white">Latest (Date)</option>
+        <option value="salary" className="bg-[#0f172a] text-white">Salary</option>
+        <option value="title" className="bg-[#0f172a] text-white">Title</option>
       </select>
       <ChevronDown
-        size={15}
-        className="absolute right-2.5 pointer-events-none text-outline-variant"
+        size={14}
+        className="absolute right-2.5 pointer-events-none text-secondary"
       />
     </div>
   );

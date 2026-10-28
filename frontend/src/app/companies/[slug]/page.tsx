@@ -55,22 +55,23 @@ export default async function CompanyDetailsPage({
     .toUpperCase();
 
   return (
-    <div className="bg-surface-container-lowest min-h-screen pb-2xl">
+    <div className="bg-[#020617] min-h-screen pb-20 relative">
 
       {/* ── Hero Banner ───────────────────────────────── */}
-      <div className="relative overflow-hidden bg-surface-container border-b border-outline-variant/20">
-        <div className="relative z-10 max-w-5xl mx-auto px-md pt-lg pb-xl">
+      <div className="relative overflow-hidden bg-[#0f172a] border-b border-white/10 shadow-premium">
+
+        <div className="relative z-10 max-w-6xl mx-auto px-6 pt-10 pb-12">
           <Link
             href="/companies"
-            className="inline-flex items-center gap-2 text-on-surface-variant hover:text-primary font-mono text-sm mb-lg transition-colors"
+            className="inline-flex items-center gap-2 text-secondary hover:text-white font-mono text-xs font-semibold uppercase tracking-wider mb-8 transition-colors group"
           >
-            <ArrowLeft className="w-4 h-4" />
-            All Companies
+            <ArrowLeft size={14} className="transition-transform group-hover:-translate-x-1" />
+            <span>All Companies</span>
           </Link>
 
-          <div className="flex flex-col sm:flex-row sm:items-center gap-lg">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-6 md:gap-8">
             {/* Logo */}
-            <div className="w-24 h-24 shrink-0 rounded-2xl bg-surface flex items-center justify-center text-primary font-bold text-3xl border border-outline-variant/30 shadow-xl overflow-hidden">
+            <div className="w-24 h-24 shrink-0 rounded-2xl bg-[#1e293b] flex items-center justify-center text-secondary font-bold text-3xl border border-white/10 shadow-inner overflow-hidden">
               {company.logo_url ? (
                 <img
                   src={company.logo_url}
@@ -82,21 +83,21 @@ export default async function CompanyDetailsPage({
               )}
             </div>
 
-            <div className="flex-1">
-              <h1 className="font-sans text-4xl md:text-5xl font-bold mb-3 leading-tight">
+            <div className="flex-1 min-w-0">
+              <h1 className="font-sans text-3xl sm:text-4xl md:text-5xl font-extrabold text-white mb-3 leading-tight">
                 {company.name}
               </h1>
 
-              <div className="flex flex-wrap items-center gap-4">
+              <div className="flex flex-wrap items-center gap-4 text-xs font-mono">
                 {company.website && (
                   <a
                     href={company.website}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-1.5 text-on-surface-variant hover:text-primary font-mono text-sm transition-colors"
+                    className="flex items-center gap-1.5 text-slate-300 hover:text-secondary transition-colors"
                   >
-                    <Globe className="w-4 h-4" />
-                    Website
+                    <Globe size={14} className="text-secondary" />
+                    <span>Website</span>
                   </a>
                 )}
                 {company.career_page && (
@@ -104,19 +105,19 @@ export default async function CompanyDetailsPage({
                     href={company.career_page}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-1.5 text-on-surface-variant hover:text-primary font-mono text-sm transition-colors"
+                    className="flex items-center gap-1.5 text-slate-300 hover:text-secondary transition-colors"
                   >
-                    <Briefcase className="w-4 h-4" />
-                    Careers Page
+                    <Briefcase size={14} className="text-secondary" />
+                    <span>Careers Page</span>
                   </a>
                 )}
               </div>
             </div>
 
             {/* Stats pill */}
-            <div className="shrink-0 bg-primary/10 border border-primary/20 rounded-2xl px-6 py-4 text-center">
-              <p className="font-sans text-3xl font-bold text-primary">{jobs.length}</p>
-              <p className="font-mono text-xs text-on-surface-variant mt-1 uppercase tracking-wider">
+            <div className="shrink-0 bg-secondary/15 border border-secondary/30 rounded-2xl px-8 py-5 text-center shadow-sm">
+              <p className="font-sans text-3xl font-extrabold text-secondary">{jobs.length}</p>
+              <p className="font-mono text-xs text-slate-300 mt-1 uppercase tracking-wider font-semibold">
                 Open Roles
               </p>
             </div>
@@ -125,39 +126,43 @@ export default async function CompanyDetailsPage({
       </div>
 
       {/* ── Body ─────────────────────────────────────── */}
-      <div className="max-w-5xl mx-auto px-md mt-xl flex flex-col md:flex-row gap-xl">
+      <div className="max-w-6xl mx-auto px-6 mt-12 flex flex-col lg:flex-row gap-8">
 
         {/* Sidebar: About */}
-        <aside className="w-full md:w-72 shrink-0">
-          <div className="sticky top-24 space-y-md">
-            <div className="bg-surface-container-low border border-outline-variant/20 rounded-2xl p-lg">
-              <h3 className="font-sans text-lg font-bold mb-3">About</h3>
-              <div className="font-sans text-sm text-on-surface-variant leading-relaxed">
+        <aside className="w-full lg:w-80 shrink-0">
+          <div className="sticky top-24 space-y-6">
+            <div className="bg-[#0f172a] border border-white/10 rounded-2xl p-6 shadow-premium">
+              <h3 className="font-sans text-base font-bold text-white mb-3 uppercase tracking-wider text-xs">
+                About Company
+              </h3>
+              <div className="font-sans text-sm text-slate-300 leading-relaxed">
                 {company.overview ? (
                   company.overview.split("\n").map((paragraph: string, idx: number) => (
                     <p key={idx} className="mb-3">{paragraph}</p>
                   ))
                 ) : (
-                  <p>No overview available for this company yet.</p>
+                  <p>Tech organization operating in Nepal with active developer opportunities.</p>
                 )}
               </div>
             </div>
 
             {/* Quick links */}
-            <div className="bg-surface-container-low border border-outline-variant/20 rounded-2xl p-lg">
-              <h3 className="font-sans text-lg font-bold mb-3">Quick Links</h3>
+            <div className="bg-[#0f172a] border border-white/10 rounded-2xl p-6 shadow-premium">
+              <h3 className="font-sans text-base font-bold text-white mb-4 uppercase tracking-wider text-xs">
+                Official Links
+              </h3>
               <div className="space-y-3">
                 {company.website && (
                   <a
                     href={company.website}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-3 text-sm font-sans text-on-surface-variant hover:text-secondary transition-colors group"
+                    className="flex items-center gap-3 text-sm font-sans text-slate-300 hover:text-secondary transition-colors group"
                   >
-                    <span className="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center group-hover:bg-secondary/15 transition-colors">
-                      <Globe className="w-4 h-4" />
+                    <span className="w-8 h-8 rounded-xl bg-[#1e293b] border border-white/5 flex items-center justify-center text-secondary group-hover:border-secondary/40 transition-colors">
+                      <Globe size={15} />
                     </span>
-                    Visit Website
+                    <span>Visit Website</span>
                   </a>
                 )}
                 {company.career_page && (
@@ -165,12 +170,12 @@ export default async function CompanyDetailsPage({
                     href={company.career_page}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-3 text-sm font-sans text-on-surface-variant hover:text-secondary transition-colors group"
+                    className="flex items-center gap-3 text-sm font-sans text-slate-300 hover:text-secondary transition-colors group"
                   >
-                    <span className="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center group-hover:bg-secondary/15 transition-colors">
-                      <Briefcase className="w-4 h-4" />
+                    <span className="w-8 h-8 rounded-xl bg-[#1e293b] border border-white/5 flex items-center justify-center text-secondary group-hover:border-secondary/40 transition-colors">
+                      <Briefcase size={15} />
                     </span>
-                    Careers Page
+                    <span>Careers Page</span>
                   </a>
                 )}
               </div>
@@ -181,31 +186,31 @@ export default async function CompanyDetailsPage({
         {/* Main: Job Listings */}
         <main className="flex-1 min-w-0">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="font-sans text-2xl font-bold">
+            <h2 className="font-sans text-2xl font-bold text-white">
               Open Positions
-              <span className="ml-3 bg-primary/10 text-primary px-3 py-1 rounded-full font-mono text-sm font-bold">
+              <span className="ml-3 bg-secondary/15 text-secondary border border-secondary/30 px-3 py-0.5 rounded-full font-mono text-xs font-bold">
                 {jobs.length}
               </span>
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 gap-3 xl:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
             {jobs.length > 0 ? (
               jobs.map((job) => <JobCard key={job.id} job={job} />)
             ) : (
-              <div className="bg-surface-container-low border border-outline-variant/20 rounded-2xl p-xl text-center xl:col-span-2">
-                <Inbox className="w-12 h-12 mx-auto text-outline mb-4 block" />
-                <h3 className="font-sans text-xl font-bold mb-2">No open roles right now</h3>
-                <p className="text-on-surface-variant font-sans text-sm">
-                  {company.name} doesn't have any active listings at the moment.
-                  Check back later or browse all companies.
+              <div className="bg-[#0f172a] border border-white/10 rounded-2xl p-16 text-center xl:col-span-2 shadow-premium">
+                <Inbox size={44} className="mx-auto text-secondary/60 mb-4 block" />
+                <h3 className="font-sans text-xl font-bold text-white mb-2">No open roles right now</h3>
+                <p className="text-slate-400 font-sans text-sm max-w-sm mx-auto mb-6">
+                  {company.name} doesn&apos;t have any active listings at the moment.
+                  Check back soon or explore other tech companies.
                 </p>
                 <Link
                   href="/companies"
-                  className="mt-6 inline-flex items-center gap-2 bg-primary text-on-primary px-6 py-3 rounded-xl font-sans font-bold hover:opacity-90 transition-all"
+                  className="inline-flex items-center gap-2 bg-primary hover:bg-[#7555e0] text-white px-7 py-3 rounded-xl font-sans font-semibold text-sm transition-all shadow-premium"
                 >
-                  Browse Companies
-                  <ArrowRight className="w-4 h-4" />
+                  <span>Browse All Companies</span>
+                  <ArrowRight size={15} />
                 </Link>
               </div>
             )}
