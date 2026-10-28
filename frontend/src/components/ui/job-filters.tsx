@@ -60,28 +60,28 @@ export function JobFilters({
 
   /* ── Shared class strings ── */
   const checkboxCls =
-    "peer appearance-none w-4 h-4 rounded border border-outline bg-surface checked:bg-primary checked:border-primary focus:ring-1 focus:ring-primary/30 focus:outline-none transition-colors cursor-pointer shrink-0";
+    "peer appearance-none w-4 h-4 rounded border border-white/20 bg-[#1e293b] checked:bg-secondary checked:border-secondary focus:ring-1 focus:ring-secondary/30 focus:outline-none transition-colors cursor-pointer shrink-0";
   const rowCls =
-    "flex items-center gap-3 cursor-pointer group py-1.5 px-2 rounded-lg hover:bg-surface-container-high transition-colors";
+    "flex items-center gap-3 cursor-pointer group py-1.5 px-2 rounded-xl hover:bg-[#1e293b]/60 transition-colors";
   const labelCls =
-    "font-sans text-xs text-on-surface-variant group-hover:text-on-surface transition-colors flex-grow";
+    "font-sans text-xs text-slate-300 group-hover:text-white transition-colors flex-grow";
   const sectionLabelCls =
-    "block font-mono text-xs font-semibold text-on-surface-variant uppercase tracking-widest mb-3";
-  const dividerCls = "h-px w-full bg-outline-variant my-1";
+    "block font-mono text-xs font-bold text-secondary uppercase tracking-widest mb-3";
+  const dividerCls = "h-px w-full bg-white/10 my-2";
 
   return (
     <div className="space-y-5">
       {/* Search */}
       <div>
         <label className={sectionLabelCls}>Search</label>
-        <div className="flex items-center gap-2 px-3 bg-surface rounded-lg border border-outline-variant focus-within:border-primary/60 focus-within:ring-1 focus-within:ring-primary/20 transition-all">
-          <Search size={14} className="text-outline shrink-0" />
+        <div className="flex items-center gap-2 px-3 bg-[#1e293b]/70 rounded-xl border border-white/10 focus-within:border-secondary/50 focus-within:ring-1 focus-within:ring-secondary/20 transition-all">
+          <Search size={14} className="text-secondary shrink-0" />
           <input
             type="text"
             placeholder="Role, skill, company…"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-transparent border-none focus:ring-0 text-on-surface font-sans py-2.5 outline-none text-sm placeholder:text-outline/60"
+            className="w-full bg-transparent border-none focus:ring-0 text-white font-sans py-2.5 outline-none text-sm placeholder:text-slate-400"
           />
         </div>
       </div>

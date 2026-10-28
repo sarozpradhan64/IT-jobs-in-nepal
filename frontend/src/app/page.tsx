@@ -1,7 +1,9 @@
 import Link from "next/link";
-import { Code, Database, Cloud, BarChart, Terminal, Briefcase, Network, ArrowRight } from "lucide-react";
-import { JobCard, JobData } from "@/components/ui/job-card";
+import { Code, Database, Cloud, BarChart, Terminal, Briefcase, Network, ArrowRight, Sparkles } from "lucide-react";
+import { JobData } from "@/components/ui/job-card";
 import { HomeSearch } from "@/components/ui/home-search";
+import { SectionTitle } from "@/components/ui/section-title";
+import { HomeJobList } from "@/components/ui/home-job-list";
 
 async function getStats() {
   try {
@@ -32,21 +34,22 @@ async function getRoleStats(): Promise<Record<string, number>> {
 async function getLatestJobs(): Promise<JobData[]> {
   try {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/jobs?limit=10`,
+      `${process.env.NEXT_PUBLIC_API_URL}/api/jobs?limit=100`,
       { next: { revalidate: 60 } },
     );
     if (!res.ok) return [];
-    return await res.json();
+    const data = await res.json();
+    return Array.isArray(data) ? data : [];
   } catch {
     return [];
   }
 }
 
 const ROLE_CARDS = [
-  { href: "/jobs?category=frontend", label: "Frontend", icon: Code },
-  { href: "/jobs?category=backend", label: "Backend", icon: Database },
-  { href: "/jobs?category=devops", label: "DevOps", icon: Cloud },
-  { href: "/jobs?category=data-science", label: "Data Science", icon: BarChart },
+  { href: "/jobs?category=frontend", label: "Frontend", icon: Code, desc: "React, Next.js, Vue, UI/UX" },
+  { href: "/jobs?category=backend", label: "Backend", icon: Database, desc: "Python, Node, Java, Go, APIs" },
+  { href: "/jobs?category=devops", label: "DevOps & Cloud", icon: Cloud, desc: "AWS, Docker, K8s, CI/CD" },
+  { href: "/jobs?category=data-science", label: "Data & AI", icon: BarChart, desc: "Analytics, ML, AI Engineering" },
 ];
 
 export default async function HomePage() {
@@ -58,39 +61,39 @@ export default async function HomePage() {
 
   return (
     <>
-      {/* ── Hero ─────────────────────────────────────── */}
-      <section className="relative pt-24 pb-20 md:pt-36 md:pb-28 overflow-hidden">
+      {/* ── Hero Section ─────────────────────────────────────── */}
+      <section className="relative pt-20 pb-20 md:pt-32 md:pb-28 overflow-hidden">
         <div className="relative z-10 max-w-5xl mx-auto px-6 text-center">
 
-          <h1 className="font-sans text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.1] mb-6 text-on-surface">
+          <h1 className="font-sans text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.12] mb-6 text-white">
             Every IT Job in Nepal,{" "}
-            <span className="text-primary">In One Place.</span>
+            <span className="text-secondary">
+              In One Place.
+            </span>
           </h1>
 
-          <p className="font-sans text-lg text-on-surface-variant max-w-2xl mx-auto mb-10 leading-relaxed">
-            Aggregating career pages, LinkedIn, and top portals for the Nepalese tech ecosystem.
-            Open-source &amp; developer-first.
+          <p className="font-sans text-base sm:text-lg md:text-xl text-slate-300 max-w-2xl mx-auto mb-10 leading-relaxed">
+            Aggregating company career pages, LinkedIn, and top tech portals for
+            Nepal&apos;s engineers, designers, and tech innovators. Open-source &amp; developer-first.
           </p>
 
           {/* Search */}
           <div className="max-w-2xl mx-auto mb-10">
-            <div className="glass-panel p-1.5 rounded-2xl flex flex-col md:flex-row items-stretch gap-1.5">
-              <HomeSearch />
-            </div>
+            <HomeSearch />
           </div>
 
-          {/* Stats */}
+          {/* Live Metrics Chips */}
           <div className="flex flex-wrap justify-center gap-3">
             {[
-              { icon: Briefcase,  label: `${stats.total_jobs.toLocaleString()} Active Jobs` },
-              { icon: Terminal,   label: `${stats.total_companies.toLocaleString()} Career Pages` },
-              { icon: Network,    label: `${stats.portals_integrated} Portals` },
+              { icon: Briefcase, label: `${stats.total_jobs.toLocaleString()} Active Jobs` },
+              { icon: Terminal,  label: `${stats.total_companies.toLocaleString()} Career Pages Tracked` },
+              { icon: Network,   label: `${stats.portals_integrated} Portals Integrated` },
             ].map(({ icon: Icon, label }) => (
               <div
                 key={label}
-                className="flex items-center gap-2 bg-surface-container border border-outline-variant px-4 py-2 rounded-full text-on-surface-variant"
+                className="flex items-center gap-2 bg-[#0f172a] border border-white/10 px-4 py-2 rounded-full text-slate-300 shadow-sm"
               >
-                <Icon size={14} className="text-primary shrink-0" />
+                <Icon size={14} className="text-secondary shrink-0" />
                 <span className="font-mono text-xs font-medium tracking-wide">{label}</span>
               </div>
             ))}
@@ -99,58 +102,103 @@ export default async function HomePage() {
       </section>
 
       {/* ── Browse by Role ───────────────────────────── */}
-      <section className="py-16 border-t border-outline-variant">
+      <section className="py-16 border-t border-white/10 bg-[#020617]/50 relative">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-10 gap-4">
-            <div>
-              <p className="font-mono text-xs text-secondary uppercase tracking-widest mb-2">Explore</p>
-              <h2 className="font-sans text-3xl font-bold text-on-surface">Browse by Role</h2>
-            </div>
-            <Link href="/jobs" className="flex items-center gap-1.5 text-primary font-mono text-sm hover:opacity-70 transition-opacity group">
-              View All <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-8 gap-4">
+            <SectionTitle
+              title="Browse by Role"
+              subtitle="EXPLORE CATEGORIES"
+              className="mb-0"
+            />
+            <Link
+              href="/jobs"
+              className="inline-flex items-center gap-1.5 text-secondary font-mono text-sm hover:text-white transition-colors group font-semibold uppercase tracking-wider"
+            >
+              <span>View All Roles</span>
+              <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
             </Link>
           </div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            {ROLE_CARDS.map(({ href, label, icon: Icon }) => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {ROLE_CARDS.map(({ href, label, icon: Icon, desc }) => (
               <Link
                 key={label}
                 href={href}
-                className="group relative overflow-hidden rounded-xl border border-outline-variant bg-surface-container p-6 hover:border-secondary/70 hover:bg-surface-container-high transition-all duration-200"
+                className="group relative overflow-hidden rounded-2xl border border-white/10 bg-[#0f172a] p-6 hover:border-primary/50 hover:bg-[#1e293b]/70 hover:-translate-y-1 transition-all duration-300 shadow-premium"
               >
-                <div className="absolute -right-4 -bottom-4 opacity-[0.06] group-hover:opacity-[0.12] transition-opacity">
-                  <Icon size={96} className="text-on-surface" />
+                {/* Background watermark icon */}
+                <div className="absolute -right-3 -bottom-3 opacity-[0.05] group-hover:opacity-[0.12] transition-opacity">
+                  <Icon size={96} className="text-white" />
                 </div>
-                <Icon size={28} className="text-primary mb-5 block transition-colors group-hover:text-secondary" />
-                <h3 className="font-sans text-lg font-bold text-on-surface mb-1 transition-colors group-hover:text-secondary">{label}</h3>
-                <p className="font-mono text-xs text-on-surface-variant uppercase tracking-wider">
-                  {roleCounts[href.split("=")[1]] ?? 0} Active Positions
-                </p>
+
+                <div className="w-12 h-12 rounded-xl bg-[#1e293b] border border-white/10 flex items-center justify-center mb-5 text-[#a78bfa] group-hover:border-primary/40 group-hover:bg-primary/20 transition-all shadow-inner">
+                  <Icon size={24} className="transition-transform group-hover:scale-110" />
+                </div>
+
+                <h3 className="font-sans text-lg font-bold text-white mb-1 transition-colors group-hover:text-[#a78bfa]">
+                  {label}
+                </h3>
+                <p className="text-xs text-slate-400 mb-3">{desc}</p>
+                <div className="inline-flex items-center gap-1 font-mono text-xs text-slate-300 font-medium uppercase tracking-wider">
+                  <span>{roleCounts[href.split("=")[1]] ?? 0} Open Positions</span>
+                </div>
               </Link>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── Latest Jobs ──────────────────────────────── */}
-      <section className="py-16 border-t border-outline-variant">
+      {/* ── 100 Jobs on Homepage ──────────────────────────────── */}
+      <section className="py-20 border-t border-white/10 relative">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-10 gap-4">
-            <div>
-              <p className="font-mono text-xs text-secondary uppercase tracking-widest mb-2">Fresh</p>
-              <h2 className="font-sans text-3xl font-bold text-on-surface">Latest Jobs</h2>
-            </div>
-            <Link href="/jobs" className="flex items-center gap-1.5 text-primary font-mono text-sm hover:opacity-70 transition-opacity group">
-              View All Jobs <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-8 gap-4">
+            <SectionTitle
+              title="Featured Tech Jobs in Nepal"
+              subtitle="LATEST 100 OPPORTUNITIES"
+              className="mb-0"
+            />
+            <Link
+              href="/jobs"
+              className="inline-flex items-center gap-1.5 text-secondary font-mono text-sm hover:text-white transition-colors group font-semibold uppercase tracking-wider"
+            >
+              <span>Explore All Jobs</span>
+              <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
-            {latestJobs.length > 0 ? (
-              latestJobs.map((job) => <JobCard key={job.id} job={job} />)
-            ) : (
-              <p className="text-on-surface-variant text-center py-12 font-sans md:col-span-2 lg:col-span-3">No jobs available right now.</p>
-            )}
+          {/* 100 Jobs List Component with interactive category tabs */}
+          <HomeJobList jobs={latestJobs} />
+        </div>
+      </section>
+
+      {/* ── Community Banner / CTA ──────────────────────────────── */}
+      <section className="py-16 border-t border-white/10 bg-[#020617] relative overflow-hidden">
+        <div className="max-w-5xl mx-auto px-6">
+          <div className="relative rounded-3xl overflow-hidden border border-white/10 bg-[#0f172a] p-8 md:p-12 shadow-premium text-center">
+            <div className="relative z-10">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white mb-4">
+                Want to list your company&apos;s career page?
+              </h2>
+              <p className="text-slate-300 text-sm sm:text-base max-w-2xl mx-auto mb-8">
+                IT Jobs Nepal scans company career pages every day. Add your company repository or portal via GitHub to reach thousands of top tech candidates in Nepal.
+              </p>
+              <div className="flex flex-wrap justify-center gap-4">
+                <Link
+                  href="https://github.com/sarozpradhan64/IT-jobs-in-nepal"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-primary hover:bg-[#7555e0] text-white font-semibold text-sm px-8 py-3.5 rounded-xl hover:-translate-y-0.5 active:scale-95 transition-all duration-300 shadow-premium"
+                >
+                  Contribute on GitHub
+                </Link>
+                <Link
+                  href="/companies"
+                  className="bg-transparent border border-white/20 hover:border-secondary hover:text-secondary text-white font-semibold text-sm px-8 py-3.5 rounded-xl transition-all duration-300"
+                >
+                  Browse Tech Companies
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
       </section>

@@ -2,7 +2,6 @@
 
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
-
 import { Search, X } from "lucide-react";
 
 function useDebounce<T>(value: T, delay: number): [T] {
@@ -47,20 +46,20 @@ export function CompanySearch() {
   }, [debouncedSearchTerm, router, pathname]);
 
   return (
-    <div className="glass-panel p-2 rounded-2xl flex flex-col md:flex-row items-stretch gap-2 shadow-sm mb-lg max-w-3xl">
-      <div className="grow flex items-center px-4 gap-3 bg-surface-container-low rounded-xl">
-        <Search size={20} className="text-outline shrink-0" />
+    <div className="bg-[#0f172a]/95 backdrop-blur-xl border border-white/10 p-2 rounded-2xl shadow-premium mb-10 max-w-3xl">
+      <div className="grow flex items-center px-4 gap-3 bg-[#1e293b]/70 border border-white/5 rounded-xl focus-within:border-secondary/50 focus-within:ring-1 focus-within:ring-secondary/20 transition-all">
+        <Search size={18} className="text-secondary shrink-0" />
         <input
           type="text"
-          placeholder="Search companies by name..."
+          placeholder="Search companies by name or technology..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full bg-transparent border-none focus:ring-0 text-on-surface font-sans py-4 outline-none placeholder:text-outline"
+          className="w-full bg-transparent border-none focus:ring-0 text-white font-sans py-3.5 outline-none placeholder:text-slate-400 text-sm"
         />
         {searchTerm && (
           <button
             onClick={() => setSearchTerm("")}
-            className="text-outline hover:text-on-surface transition-colors shrink-0"
+            className="text-slate-400 hover:text-white transition-colors shrink-0 p-1"
             aria-label="Clear search"
           >
             <X size={16} />

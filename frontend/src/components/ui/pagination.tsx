@@ -1,5 +1,6 @@
 import Link from "next/link";
 import React from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface PaginationProps {
   currentPage: number;
@@ -21,23 +22,24 @@ export function Pagination({
       {currentPage > 1 ? (
         <Link
           href={getPaginationUrl(currentPage - 1)}
-          className="border border-outline-variant/50 text-on-surface px-4 py-2 rounded-lg font-sans font-medium text-sm hover:bg-surface-variant hover:border-primary/50 transition-all shadow-sm"
+          className="inline-flex items-center gap-1 border border-white/10 bg-[#0f172a] text-slate-300 px-4 py-2 rounded-xl font-sans font-medium text-xs sm:text-sm hover:text-white hover:border-secondary/40 transition-all shadow-sm"
         >
-          Prev
+          <ChevronLeft size={14} />
+          <span>Prev</span>
         </Link>
       ) : (
         <button
           disabled
-          className="border border-outline-variant/20 text-on-surface-variant/50 px-4 py-2 rounded-lg font-sans font-medium text-sm cursor-not-allowed"
+          className="inline-flex items-center gap-1 border border-white/5 bg-[#0f172a]/40 text-slate-600 px-4 py-2 rounded-xl font-sans font-medium text-xs sm:text-sm cursor-not-allowed"
         >
-          Prev
+          <ChevronLeft size={14} />
+          <span>Prev</span>
         </button>
       )}
 
-      <div className="flex items-center gap-1 mx-2">
+      <div className="flex items-center gap-1.5 mx-2">
         {Array.from({ length: totalPages }).map((_, i) => {
           const pageNum = i + 1;
-          // Show first, last, current, and adjacent pages
           if (
             pageNum === 1 ||
             pageNum === totalPages ||
@@ -48,10 +50,10 @@ export function Pagination({
               <Link
                 key={pageNum}
                 href={getPaginationUrl(pageNum)}
-                className={`w-9 h-9 flex items-center justify-center rounded-lg font-sans text-sm font-medium transition-all ${
+                className={`w-9 h-9 flex items-center justify-center rounded-xl font-sans text-xs sm:text-sm font-semibold transition-all ${
                   isActive
-                    ? "bg-primary text-on-primary shadow-sm pointer-events-none"
-                    : "text-on-surface hover:bg-surface-variant border border-transparent hover:border-outline-variant/50"
+                    ? "bg-secondary text-[#020617] shadow-md shadow-secondary/20 pointer-events-none"
+                    : "text-slate-300 hover:text-white hover:bg-[#1e293b] border border-white/10"
                 }`}
               >
                 {pageNum}
@@ -59,13 +61,12 @@ export function Pagination({
             );
           }
 
-          // Show ellipsis for gaps
           if (
             (pageNum === 2 && currentPage > 3) ||
             (pageNum === totalPages - 1 && currentPage < totalPages - 2)
           ) {
             return (
-              <span key={pageNum} className="text-on-surface-variant px-1">
+              <span key={pageNum} className="text-slate-500 px-1 font-mono text-xs">
                 ...
               </span>
             );
@@ -78,16 +79,18 @@ export function Pagination({
       {hasNextPage ? (
         <Link
           href={getPaginationUrl(currentPage + 1)}
-          className="border border-outline-variant/50 text-on-surface px-4 py-2 rounded-lg font-sans font-medium text-sm hover:bg-surface-variant hover:border-primary/50 transition-all shadow-sm"
+          className="inline-flex items-center gap-1 border border-white/10 bg-[#0f172a] text-slate-300 px-4 py-2 rounded-xl font-sans font-medium text-xs sm:text-sm hover:text-white hover:border-secondary/40 transition-all shadow-sm"
         >
-          Next
+          <span>Next</span>
+          <ChevronRight size={14} />
         </Link>
       ) : (
         <button
           disabled
-          className="border border-outline-variant/20 text-on-surface-variant/50 px-4 py-2 rounded-lg font-sans font-medium text-sm cursor-not-allowed"
+          className="inline-flex items-center gap-1 border border-white/5 bg-[#0f172a]/40 text-slate-600 px-4 py-2 rounded-xl font-sans font-medium text-xs sm:text-sm cursor-not-allowed"
         >
-          Next
+          <span>Next</span>
+          <ChevronRight size={14} />
         </button>
       )}
     </div>
