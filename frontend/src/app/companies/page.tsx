@@ -92,7 +92,7 @@ export default async function CompaniesPage({
                     )}
                   </div>
                   <div className="min-w-0">
-                    <h3 className="font-sans text-lg font-bold text-white group-hover:text-[#a78bfa] transition-colors line-clamp-1">
+                    <h3 className="font-sans text-lg font-semibold text-white group-hover:text-[#a78bfa] transition-colors line-clamp-1">
                       {company.name}
                     </h3>
                     <div className="font-mono text-xs text-slate-400 group-hover:text-white transition-colors flex items-center gap-1 mt-1 font-medium">
