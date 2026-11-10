@@ -88,7 +88,7 @@ export function JobCard({ job }: { job: JobData }) {
         </div>
 
         {/* Job Title */}
-        <h4 className="line-clamp-2 font-sans text-base sm:text-lg font-bold leading-snug text-white transition-colors duration-200 group-hover:text-[#a78bfa] relative z-10">
+        <h4 className="line-clamp-2 font-sans text-base sm:text-lg font-semibold leading-snug text-white transition-colors duration-200 group-hover:text-[#a78bfa] relative z-10">
           {job.title}
         </h4>
 

@@ -169,7 +169,7 @@ export default async function JobsPage({
                     <SearchX size={24} />
                   </div>
                   <h3 className="font-sans text-lg font-bold text-white mb-2">No jobs found</h3>
-                  <p className="text-slate-400 font-sans text-sm mb-6 max-w-sm">
+                  <p className="text-slate-400 font-sans text-sm mb-6">
                     No roles match your current filters. Try broadening your keywords or clearing selected filters.
                   </p>
                   <a

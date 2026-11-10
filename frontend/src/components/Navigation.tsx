@@ -17,7 +17,7 @@ export default function Navigation() {
       {navLinks.map((link) => {
         const isActive =
           link.href === "/jobs"
-            ? pathname === "/jobs" || pathname.startsWith("/jobs/") || pathname === "/"
+            ? pathname === "/jobs" || pathname.startsWith("/jobs/")
             : pathname === link.href || pathname.startsWith(link.href + "/");
 
         return (
